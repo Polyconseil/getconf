@@ -110,23 +110,32 @@ We get the following outputs:
 
 .. code-block:: sh
 
+    # Default setup
     $ python test_config.py
     Env: example
     DB: foo.example.net
     Debug: False
 
+    # Override 'env'
     $ GETCONF_ENV=alt python test_config.py
     Env: alt
     DB: foo.example.net
     Debug: False
 
+    # Override 'dev.debug'
     $ GETCONF_DEV_DEBUG=on python test_config.py
     Env: example
     DB: foo.example.net
     Debug: True
 
+    # Read from an alternate configuration file
     $ GETCONF_CONFIG=/etc/getconf/production.ini python test_config.py
     Env: prod
     DB: prod.example.net
     Debug: False
 
+    # Mix it up
+    $ GETCONF_DEV_DEBUG=on GETCONF_CONFIG=/etc/getconf/production python test_config.py
+    Env: prod
+    DB: prod.example.net
+    Debug: True
