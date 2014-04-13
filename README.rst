@@ -1,7 +1,7 @@
-conftools
-=========
+getconf
+=======
 
-The ``conftools`` project provides simple configuration helpers for Python project.
+The ``getconf`` project provides simple configuration helpers for Python project.
 
 It aims at unifying configuration setup across development and production systems,
 respecting the standard procedures in each system:
@@ -11,14 +11,14 @@ respecting the standard procedures in each system:
 * Use standard configuration space in ``/etc`` on traditional production servers
 * Handle environment-based configuration for cloud-based platforms
 
-``conftools`` supports Python 2.6, 2.7, 3.3, and is distributed under the two-clause BSD licence.
+``getconf`` supports Python 2.6, 2.7, 3.3, and is distributed under the two-clause BSD licence.
 
 Links
 -----
 
-- Package on `PyPI`_: http://pypi.python.org/pypi/conftools/
-- Doc on `ReadTheDocs <http://readthedocs.org/>`_: http://readthedocs.org/docs/conftools/
-- Source on `GitHub <http://github.com/>`_: http://github.com/Polyconseil/conftools/
+- Package on `PyPI`_: http://pypi.python.org/pypi/getconf/
+- Doc on `ReadTheDocs <http://readthedocs.org/>`_: http://readthedocs.org/docs/getconf/
+- Source on `GitHub <http://github.com/>`_: http://github.com/Polyconseil/getconf/
 
 
 Installation
@@ -28,23 +28,23 @@ Intall the package from `PyPI`_, using pip:
 
 .. code-block:: sh
 
-    pip install conftools
+    pip install getconf
 
 Or from GitHub:
 
 .. code-block:: sh
 
-    $ git clone git://github.com/Polyconseil/conftools
+    $ git clone git://github.com/Polyconseil/getconf
 
 Introduction
 ------------
 
-All configuration values are accessed through ``conftools.ConfigGetter`` object:
+All configuration values are accessed through ``getconf.ConfigGetter`` object:
 
 .. code-block:: python
 
-    import conftools
-    config = conftools.ConfigGetter('fubar', '/etc/fubar/settings.ini', './local_settings.ini')
+    import getconf
+    config = getconf.ConfigGetter('fubar', '/etc/fubar/settings.ini', './local_settings.ini')
 
 The above line declares:
 
@@ -52,7 +52,7 @@ The above line declares:
 * Look, in turn, at ``/etc/fubar/settings.ini`` (for produciton) and ``./local_settings.ini`` (for development)
 
 
-Once the ``conftools.ConfigGetter`` has been configured, it can be used to retrieve settings:
+Once the ``getconf.ConfigGetter`` has been configured, it can be used to retrieve settings:
 
 .. code-block:: python
 
@@ -64,7 +64,7 @@ Once the ``conftools.ConfigGetter`` has been configured, it can be used to retri
 All settings have a type (default is text), and accept a default value.
 They use namespaces for easier reading.
 
-With the above setup, ``conftools`` will try to provide ``db.host`` by inspecting
+With the above setup, ``getconf`` will try to provide ``db.host`` by inspecting
 the following options in order (it stops at the first defined value):
 
 - From the environment variable ``FUBAR_DB_HOST``, if defined

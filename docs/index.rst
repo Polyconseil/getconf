@@ -1,9 +1,9 @@
-.. conftools documentation master file, created by
+.. getconf documentation master file, created by
    sphinx-quickstart on Sun Apr 13 14:24:41 2014.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to conftools's documentation!
+Welcome to getconf's documentation!
 =====================================
 
 Contents:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# conftools documentation build configuration file, created by
+# getconf documentation build configuration file, created by
 # sphinx-quickstart on Sun Apr 13 14:24:41 2014.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'conftools'
+project = 'getconf'
 copyright = '2014, Polyconseil'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -52,7 +52,7 @@ root_dir = os.path.abspath(os.path.dirname(__file__))
 def get_version():
     import re
     version_re = re.compile(r"^__version__ = '([\w_.-]+)'$")
-    with open(os.path.join(root_dir, os.pardir, 'conftools', '__init__.py')) as f:
+    with open(os.path.join(root_dir, os.pardir, 'getconf', '__init__.py')) as f:
         for line in f:
             match = version_re.match(line[:-1])
             if match:
@@ -176,7 +176,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'conftoolsdoc'
+htmlhelp_basename = 'getconfdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -195,7 +195,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'conftools.tex', 'conftools Documentation',
+  ('index', 'getconf.tex', 'conftools Documentation',
    'Polyconseil', 'manual'),
 ]
 
@@ -225,7 +225,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'conftools', 'conftools Documentation',
+    ('index', 'getconf', 'conftools Documentation',
      ['Polyconseil'], 1)
 ]
 
@@ -239,8 +239,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'conftools', 'conftools Documentation',
-   'Polyconseil', 'conftools', 'One line description of project.',
+  ('index', 'getconf', 'conftools Documentation',
+   'Polyconseil', 'getconf', 'One line description of project.',
    'Miscellaneous'),
 ]
 

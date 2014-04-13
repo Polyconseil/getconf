@@ -25,18 +25,18 @@ def get_version(package_name):
     return '0.1.0'
 
 
-PACKAGE = 'conftools'
+PACKAGE = 'getconf'
 
 
 setup(
     name=PACKAGE,
     version=get_version(PACKAGE),
-    description="conftools, a versatile configuration lib for Python projects",
+    description="getconf, a versatile configuration lib for Python projects",
     long_description=''.join(codecs.open('README.rst', 'r', 'utf-8').readlines()),
     author="Polyconseil",
     author_email="opensource+%s@polyconseil.fr" % PACKAGE,
     license="BSD",
-    keywords=['configuration', 'environment', 'setup', 'conftools', 'config'],
+    keywords=['configuration', 'environment', 'setup', 'getconf', 'config'],
     url="https://github.com/Polyconseil/%s/" % PACKAGE,
     download_url="https://pypi.python.org/pypi/%s/" % PACKAGE,
     packages=[PACKAGE],
