@@ -7,10 +7,10 @@ from __future__ import unicode_literals
 import collections
 import logging
 import os
-import six
 
-from django.utils.six.moves import configparser  # pylint: disable=F0401
-from django.utils import log
+from . import compat
+from .compat import configparser
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 if os.environ.get('LOG_TO_STDERR', '0') == 1:
     logger.addHandler(logging.StreamHandler())
 else:
-    logger.addHandler(log.NullHandler())
+    logger.addHandler(compat.NullHandler())
 
 
 ConfigKey = collections.namedtuple('ConfigKey', ['section', 'entry', 'envvar', 'doc'])
@@ -53,7 +53,7 @@ class ConfigGetter(object):
     """
     def __init__(self, namespace, *config_files):
         self.namespace = namespace
-        self.parser = configparser.SafeConfigParser()
+        self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
@@ -79,14 +79,14 @@ class ConfigGetter(object):
         except KeyError:
             return default
 
-        if six.PY2:  # Bytes in PY2, text in PY3.
+        if compat.PY2:  # Bytes in PY2, text in PY3.
             env_value = env_value.decode('utf-8')
         return env_value
 
     def _read_parser(self, config_section, key, default):
         """Handle configparser-related logic."""
         try:
-            if six.PY2:
+            if compat.PY2:
                 value = self.parser.get(config_section, key).decode('utf-8')
             else:
                 value = self.parser.get(config_section, key, fallback=default)
@@ -134,8 +134,8 @@ class ConfigGetter(object):
         Accepts the following values as 'True':
             on, yes, true, 1
         """
-        value = self.get(key, default=six.text_type(default), doc=doc)
-        return six.text_type(value).lower() in ('on', 'true', 'yes', '1')
+        value = self.get(key, default=compat.text_type(default), doc=doc)
+        return compat.text_type(value).lower() in ('on', 'true', 'yes', '1')
 
     def getint(self, key, default=False, doc=''):
         """Retrieve a value as an integer."""
