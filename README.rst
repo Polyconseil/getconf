@@ -39,7 +39,7 @@ Or from GitHub:
 Introduction
 ------------
 
-All configuration values are accessed through a :class:`conftools.ConfigGetter` object:
+All configuration values are accessed through ``conftools.ConfigGetter`` object:
 
 .. code-block:: python
 
@@ -52,7 +52,7 @@ The above line declares:
 * Look, in turn, at ``/etc/fubar/settings.ini`` (for produciton) and ``./local_settings.ini`` (for development)
 
 
-Once the :class:`conftools.ConfigGetter` has been configured, it can be used to retrieve settings:
+Once the ``conftools.ConfigGetter`` has been configured, it can be used to retrieve settings:
 
 .. code-block:: python
 
@@ -72,3 +72,5 @@ the following options in order (it stops at the first defined value):
 - From the ``host`` key in the ``[db]`` section of ``./local_settings.ini``
 - From the ``host`` key in the ``[db]`` section of ``/etc/fubar/settings.ini``
 - From the default provided value
+
+.. _PyPI: http://pypi.python.org/
