@@ -1,6 +1,7 @@
 include README.rst
 include ChangeLog
 include docs/Makefile
+include *.txt
 recursive-include docs *.py *.rst
 include docs/_static/.keep_dir
 prune docs/_build
