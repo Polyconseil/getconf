@@ -74,22 +74,3 @@ the following options in order (it stops at the first defined value):
 - From the default provided value
 
 .. _PyPI: http://pypi.python.org/
-
-
-Contents:
----------
-
-.. toctree::
-   :maxdepth: 2
-
-   reference
-
-
-
-Indices and tables
-------------------
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
