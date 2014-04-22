@@ -49,7 +49,7 @@ All configuration values are accessed through ``getconf.ConfigGetter`` object:
 The above line declares:
 
 * Use the ``fubar`` namespace (mostly used for environment-based configuration, as a prefix for environment variables)
-* Look, in turn, at ``/etc/fubar/settings.ini`` (for produciton) and ``./local_settings.ini`` (for development)
+* Look, in turn, at ``/etc/fubar/settings.ini`` (for production) and ``./local_settings.ini`` (for development)
 
 
 Once the ``getconf.ConfigGetter`` has been configured, it can be used to retrieve settings:
