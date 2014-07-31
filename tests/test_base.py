@@ -9,7 +9,6 @@ import os
 import sys
 import unittest
 
-
 import getconf
 
 
@@ -35,11 +34,11 @@ class Environ(object):
 
 
 class ConfigGetterTestCase(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        super(ConfigGetterTestCase, cls).setUpClass()
-        cls.example_path = os.path.join(os.path.dirname(__file__), 'example.ini')
-        cls.example2_path = os.path.join(os.path.dirname(__file__), 'example2.ini')
+
+    def setUp(self):
+        super(ConfigGetterTestCase, self).setUp()
+        self.example_path = os.path.join(os.path.dirname(__file__), 'example.ini')
+        self.example2_path = os.path.join(os.path.dirname(__file__), 'example2.ini')
 
     def test_no_settings(self):
         """Test when no real settings exist."""
