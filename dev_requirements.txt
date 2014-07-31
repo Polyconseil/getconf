@@ -2,4 +2,4 @@
 -r requirements.txt
 
 Sphinx
-
+pylint
