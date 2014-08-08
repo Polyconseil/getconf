@@ -6,7 +6,13 @@ ChangeLog
 
 *New:*
 
-   * New initialization syntax
+    * New initialization syntax
+
+*Deprecated*
+
+    * Using argument list for config file paths when initializing ConfigGetter is now deprecated,
+      you need to use a list (use `ConfigGetter(namespace, ['settings_1.ini', 'settings_2.ini'])` instead of
+      `ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini')`)
 
 
 1.0.1 (2014-04-13)

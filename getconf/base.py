@@ -31,7 +31,7 @@ class ConfigGetter(object):
     Designed for use in a settings.py file.
 
     Usage:
-        >>> config = ConfigGetter('blusers', config_files=['/etc/blusers/settings.ini'])
+        >>> config = ConfigGetter('blusers', ['/etc/blusers/settings.ini'])
         >>> x = config.get('psql.server', 'localhost:5432')
         'localhost:5432'
 
@@ -59,11 +59,12 @@ class ConfigGetter(object):
 
         if isinstance(config_files, compat.string_types):
             warnings.warn(
-                "Using %s is deprecated use %s instead" % (
+                "Using %s is deprecated and will be removed in getconf 1.2.0; please use %s instead" % (
                     "ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini', ...)",
-                    "ConfigGetter(namespace, config_files=['settings_1.ini', 'settings_2.ini', ...])"
+                    "ConfigGetter(namespace, ['settings_1.ini', 'settings_2.ini', ...])",
                 ),
-                DeprecationWarning
+                DeprecationWarning,
+                stacklevel=2,
             )
             config_files = (config_files, ) + old_style_config_files
 
