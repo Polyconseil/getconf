@@ -44,7 +44,7 @@ All configuration values are accessed through ``getconf.ConfigGetter`` object:
 .. code-block:: python
 
     import getconf
-    config = getconf.ConfigGetter('fubar', '/etc/fubar/settings.ini', './local_settings.ini')
+    config = getconf.ConfigGetter('fubar', config_files=['/etc/fubar/settings.ini', './local_settings.ini'])
 
 The above line declares:
 
