@@ -20,8 +20,10 @@ else:
 if sys.version_info[0] == 2:
     PY2 = True
     text_type = unicode
+    string_types = basestring
     import ConfigParser as configparser
 else:
     PY2 = False
     text_type = str
+    string_types = str
     import configparser

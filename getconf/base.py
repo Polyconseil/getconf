@@ -6,6 +6,7 @@ from __future__ import unicode_literals
 
 import collections
 import logging
+import warnings
 import os
 
 from . import compat
@@ -30,7 +31,7 @@ class ConfigGetter(object):
     Designed for use in a settings.py file.
 
     Usage:
-        >>> config = ConfigGetter('blusers', '/etc/blusers/settings.ini')
+        >>> config = ConfigGetter('blusers', ['/etc/blusers/settings.ini'])
         >>> x = config.get('psql.server', 'localhost:5432')
         'localhost:5432'
 
@@ -51,10 +52,21 @@ class ConfigGetter(object):
           ``/etc/blusers/settings.ini``
         - The empty string
     """
-    def __init__(self, namespace, *config_files):
+    def __init__(self, namespace, config_files=(), *old_style_config_files):
         self.namespace = namespace
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
+
+        if isinstance(config_files, compat.string_types):
+            warnings.warn(
+                "Using %s is deprecated and will be removed in getconf 1.2.0; please use %s instead" % (
+                    "ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini', ...)",
+                    "ConfigGetter(namespace, ['settings_1.ini', 'settings_2.ini', ...])",
+                ),
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            config_files = (config_files, ) + old_style_config_files
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
         search_files = list(config_files) + [extra_config_file]

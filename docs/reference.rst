@@ -4,17 +4,17 @@ Reference
 .. module:: getconf
 
 
-.. class:: ConfigGetter(namespace[, configfile[, configfile[, ...]]])
+.. class:: ConfigGetter(namespace, config_files=[config_file_path, ...])
 
     This class works as a proxy around both :attr:`os.environ` and INI configuration files.
 
     :param str namespace: The namespace for all configuration entry lookups.
                           If an environment variable of ``<NAMESPACE>_CONFIG`` is set, the file at that path
                           will be loaded.
-    :param str configfile: The path to default configuration files to use.
-                           Provided configuration files are read in the order their name was provided,
-                           each overriding previous values. ``<NAMESPACE>_CONFIG`` takes precedence over
-                           all ``*configfile`` contents.
+    :param list config_files: List of paths of default configuration files to use.
+                              Provided configuration files are read in the order their name was provided,
+                              each overriding previous values. ``<NAMESPACE>_CONFIG`` takes precedence over
+                              all ``config_files`` contents.
 
     .. method:: get(key[, default=''])
 
@@ -81,7 +81,7 @@ With the following setup:
 
     # test_config.py
     import getconf
-    config = getconf.ConfigGetter('getconf', '/etc/getconf/example.ini')
+    config = getconf.ConfigGetter('getconf', ['/etc/getconf/example.ini'])
 
     print("Env: %s" % config.get('env', 'dev'))
     print("DB: %s" % config.get('db.host', 'localhost'))
