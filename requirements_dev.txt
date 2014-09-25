@@ -5,3 +5,4 @@ Sphinx
 pylint
 nose
 coverage
+ipdb
