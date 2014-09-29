@@ -42,18 +42,21 @@ class ConfigGetter(object):
           BLUSERS_CONFIG, if provided
         - Key 'server' from section 'psql' of config file
           ``/etc/blusers/settings.ini``
+        - Key 'psql' in key 'server' of default config dict
         - The provided default
 
-    - Calls to get('secret_key) will look at:
+    - Calls to get('secret_key') will look at:
         - Environment key BLUSERS_SECRET_KEY
         - Key 'secret_key' from section 'DEFAULT' of config file given in env
           BLUSERS_CONFIG, if provided
         - Key 'secret_key' from section 'DEFAULT' of config file
           ``/etc/blusers/settings.ini``
+        - Key 'secret_key' of default config dict
         - The empty string
     """
-    def __init__(self, namespace, config_files=(), *old_style_config_files):
+    def __init__(self, namespace, config_files=(), defaults=None, *old_style_config_files):
         self.namespace = namespace
+        self.defaults = (defaults if defaults is not None else {})
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
@@ -66,7 +69,8 @@ class ConfigGetter(object):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_files = (config_files, ) + old_style_config_files
+            config_files = (config_files, ) + (self.defaults, ) + old_style_config_files
+            self.defaults = {}
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
         search_files = list(config_files) + [extra_config_file]
@@ -113,6 +117,12 @@ class ConfigGetter(object):
             section = ''
 
         value = default
+
+        #Try default dict
+        if section:
+            value = self.defaults.get(section, {}).get(key, value)
+        else:
+            value = self.defaults.get(key, value)
 
         # Try config file
         config_section = section or 'DEFAULT'

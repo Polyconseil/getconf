@@ -239,6 +239,45 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_ENCODING_NOASCII="ßlūelÿ"):
             self.assertEqual("ßlūelÿ", getter.get('encoding.noascii'))
 
+    def test_default_dict(self):
+        """Test fetching from the default config dict."""
+        getter = getconf.ConfigGetter('TESTNS', defaults={"test":'54'})
+        self.assertEqual('54', getter.get('test', 'foo'))
+
+    def test_two_dimension_dict(self):
+        """Test fetching a two dimension dict."""
+        getter = getconf.ConfigGetter('TESTNS', defaults={"test":'54', 'section1':{"key": '88'}})
+        self.assertEqual('88', getter.get('section1.key', 'foo'))
+
+    def test_default_dict_with_file(self):
+        """Test fetching from default and file without named arguments"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], {"test":'54'})
+        self.assertEqual('54', getter.get('test', 'foo'))
+        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+
+    def test_half_named_arguments(self):
+        """Test fetching from default and file with half named arguments"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={"test":'54'})
+        self.assertEqual('54', getter.get('test', 'foo'))
+        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+
+    def test_named_arguments(self):
+        """Test fetching from default and file with named arguments"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={"test":'54'})
+        self.assertEqual('54', getter.get('test', 'foo'))
+        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+
+    def test_file_overide_default(self):
+        """Test that default dict is overridden by file"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={"test":'54', "section1.foo": '72'})
+        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+
+    def test_environ_overrides_default(self):
+        """Test that default dict is overridden by environment"""
+        getter = getconf.ConfigGetter('TESTNS', defaults={"test":'54', "section1.foo": '72'})
+        with Environ(TESTNS_SECTION1_FOO='blah'):
+            self.assertEqual('blah', getter.get('section1.foo'))
+
 
 if __name__ == '__main__':
     unittest.main()
