@@ -52,8 +52,10 @@ class ConfigGetter(object):
           ``/etc/blusers/settings.ini``
         - The empty string
     """
-    def __init__(self, namespace, config_files=(), *old_style_config_files):
+
+    def __init__(self, namespace, config_files=None, *old_style_config_files):
         self.namespace = namespace
+        config_files = (config_files if config_files is not None else ())
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
@@ -80,33 +82,11 @@ class ConfigGetter(object):
             ', '.join(self.search_files),
         )
 
-    def _env_key(self, *args):
-        args = (self.namespace,) + args
-        return '_'.join(arg.upper() for arg in args)
-
-    def _read_env(self, key, default):
-        """Handle environ-related logic."""
-        try:
-            env_value = os.environ[key]
-        except KeyError:
-            return default
-
-        if compat.PY2:  # Bytes in PY2, text in PY3.
-            env_value = env_value.decode('utf-8')
-        return env_value
-
-    def _read_parser(self, config_section, key, default):
-        """Handle configparser-related logic."""
-        try:
-            if compat.PY2:
-                value = self.parser.get(config_section, key).decode('utf-8')
-            else:
-                value = self.parser.get(config_section, key, fallback=default)
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            return default
-        return value
-
     def get(self, key, default='', doc=''):
+        """Retrieve the value provided as key argument, if it doesn't exist it return the default argument provided.
+
+        The doc argument populate a list of ConfigKey that you retrieve with "list_keys" method.
+        """
         if '.' in key:
             section, key = key.split('.', 1)
         else:
@@ -123,7 +103,6 @@ class ConfigGetter(object):
             env_key = self._env_key(section, key)
         else:
             env_key = self._env_key(key)
-
         value = self._read_env(env_key, value)
 
         self.seen_keys.add(ConfigKey(section=config_section, entry=key, envvar=env_key, doc=doc))
@@ -165,6 +144,32 @@ class ConfigGetter(object):
             list of ConfigKey (section, entry, envvar tuple)
         """
         return sorted(self.seen_keys)
+
+    def _env_key(self, *args):
+        args = (self.namespace,) + args
+        return '_'.join(arg.upper() for arg in args)
+
+    def _read_env(self, key, default):
+        """Handle environ-related logic."""
+        try:
+            env_value = os.environ[key]
+        except KeyError:
+            return default
+
+        if compat.PY2:  # Bytes in PY2, text in PY3.
+            env_value = env_value.decode('utf-8')
+        return env_value
+
+    def _read_parser(self, config_section, key, default):
+        """Handle configparser-related logic."""
+        try:
+            if compat.PY2:
+                value = self.parser.get(config_section, key).decode('utf-8')
+            else:
+                value = self.parser.get(config_section, key, fallback=default)
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            return default
+        return value
 
 
 class ConfigSectionGetter(object):
