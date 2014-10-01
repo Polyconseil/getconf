@@ -49,6 +49,14 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual((), getter.search_files)
         self.assertEqual((), getter.found_files)
 
+    def test_none_as_file(self):
+        """Test None given as arg file."""
+        getter = getconf.ConfigGetter('TESTNS', None)
+        self.assertEqual('foo', getter.get('bar', 'foo'))
+        self.assertEqual('', getter.get('bar'))
+        self.assertEqual((), getter.search_files)
+        self.assertEqual((), getter.found_files)
+
     def test_environ_settings(self):
         """Test fetching key from environment."""
         getter = getconf.ConfigGetter('TESTNS')

@@ -52,8 +52,10 @@ class ConfigGetter(object):
           ``/etc/blusers/settings.ini``
         - The empty string
     """
-    def __init__(self, namespace, config_files=(), *old_style_config_files):
+
+    def __init__(self, namespace, config_files=None, *old_style_config_files):
         self.namespace = namespace
+        config_files = (config_files if config_files is not None else ())
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
