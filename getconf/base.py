@@ -79,7 +79,8 @@ class ConfigGetter(object):
         self.found_files = tuple(self.parser.read(self.search_files))
 
         logger.info(
-            "Successfully loaded configuration from files %s (searching in %s)",
+            "Successfully loaded configuration from dict (%s) and files (%s) (searching in (%s))",
+            ', '.join(self.defaults),
             ', '.join(self.found_files),
             ', '.join(self.search_files),
         )
@@ -117,15 +118,12 @@ class ConfigGetter(object):
             section = ''
 
         value = default
+        config_section = section or 'DEFAULT'
 
         #Try default dict
-        if section:
-            value = self.defaults.get(section, {}).get(key, value)
-        else:
-            value = self.defaults.get(key, value)
+        value = self.defaults.get(config_section, {}).get(key, value)
 
         # Try config file
-        config_section = section or 'DEFAULT'
         value = self._read_parser(config_section, key, default=value)
 
         # Try environ
