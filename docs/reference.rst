@@ -4,17 +4,24 @@ Reference
 .. module:: getconf
 
 
-.. class:: ConfigGetter(namespace, config_files=[config_file_path, ...])
+.. class:: ConfigGetter(
+                        namespace,
+                        config_files=[config_file_path, ...],
+                        default_dict={'section':{'key': 'value',...},...}
+                        )
 
     This class works as a proxy around both :attr:`os.environ` and INI configuration files.
 
     :param str namespace: The namespace for all configuration entry lookups.
                           If an environment variable of ``<NAMESPACE>_CONFIG`` is set, the file at that path
                           will be loaded.
-    :param list config_files: List of paths of default configuration files to use.
-                              Provided configuration files are read in the order their name was provided,
+    :param list config_files: List of paths of default configuration to use. You could provide files or directories.
+                              For each directory, every files it directly contain will be imported in alphabetical order.
+                              Provided configuration paths are read in the order their name was provided,
                               each overriding previous values. ``<NAMESPACE>_CONFIG`` takes precedence over
                               all ``config_files`` contents.
+    :param dict default_dict: Dictionary of defaults values that are fetch with the lowest priority. Use the same
+                              syntax as files.
 
     .. method:: get(key[, default=''])
 

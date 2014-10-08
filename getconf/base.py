@@ -55,14 +55,13 @@ class ConfigGetter(object):
         - Key 'secret_key' of default config dict
         - The empty string
     """
-    def __init__(self, namespace, config=None, defaults=None, *old_style_config_files):
+    def __init__(self, namespace, config_files=(), default_dict=None, *old_style_config_files):
         self.namespace = namespace
-        self.defaults = (defaults if defaults is not None else {})
-        config = (config if config is not None else ())
+        self.default_dict = (default_dict if default_dict is not None else {})
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
-        if isinstance(config, compat.string_types):
+        if isinstance(config_files, compat.string_types):
             warnings.warn(
                 "Using %s is deprecated and will be removed in getconf 1.2.0; please use %s instead" % (
                     "ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini', ...)",
@@ -71,28 +70,26 @@ class ConfigGetter(object):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_files = (config, ) + (self.defaults, ) + old_style_config_files
-            self.defaults = {}
+            final_config_files = (config_files, self.default_dict) + old_style_config_files
+            self.default_dict = {}
         else:
-            #extract files from directories
-            config_files = []
-            for conf in config:
-                if conf and (conf[-1] == '/'):
-                    directory_config = glob.glob("%s*.ini" % conf)
-                    directory_config.sort()
-                    config_files.extend(directory_config)
+            final_config_files = []
+            for path in config_files:
+                if os.path.isdir(path):
+                    directory_files = glob.glob(os.path.join(path, "*"))
+                    final_config_files.extend(sorted(directory_files))
                 else:
-                    config_files.append(conf)
+                    final_config_files.append(path)
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
-        search_files = list(config_files) + [extra_config_file]
+        search_files = list(final_config_files) + [extra_config_file]
 
         self.search_files = tuple(f for f in search_files if f)
         self.found_files = tuple(self.parser.read(self.search_files))
 
         logger.info(
-            "Successfully loaded configuration from dict (%s) and files (%s) (searching in (%s))",
-            ', '.join(self.defaults),
+            "Successfully loaded configuration from%sfiles (%s) (searching in (%s))",
+            (" default_dict and " if self.default_dict else " "),
             ', '.join(self.found_files),
             ', '.join(self.search_files),
         )
@@ -132,8 +129,8 @@ class ConfigGetter(object):
         value = default
         config_section = section or 'DEFAULT'
 
-        #Try default dict
-        value = self.defaults.get(config_section, {}).get(key, value)
+        # Try default dict
+        value = self.default_dict.get(config_section, {}).get(key, value)
 
         # Try config file
         value = self._read_parser(config_section, key, default=value)

@@ -35,9 +35,9 @@ class Environ(object):
 
 
 class ConfigGetterTestCase(unittest.TestCase):
-    example_directory = os.path.dirname(__file__) + '/config/'
-    example_path = example_directory + 'example.ini'
-    example2_path = example_directory + 'example2.ini'
+    example_directory = os.path.join(os.path.dirname(__file__), 'config/')
+    example_path = os.path.join(example_directory, 'example.ini')
+    example2_path = os.path.join(example_directory, 'example2.ini')
 
     def test_no_settings(self):
         """Test when no real settings exist."""
@@ -145,7 +145,7 @@ class ConfigGetterTestCase(unittest.TestCase):
 
     def test_from_directory(self):
         """Test fetching from a directory."""
-        getter = getconf.ConfigGetter('TESTNS', [self.example_directory])
+        getter = getconf.ConfigGetter('TESTNS', config_files=[self.example_directory])
         self.assertEqual((self.example_path, self.example2_path), getter.search_files)
         self.assertEqual((self.example_path, self.example2_path), getter.found_files)
         with Environ(TESTNS_FOO='blah'):
@@ -176,7 +176,6 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual('13', getter.get('section2.bar'))
             # A section.key defined in the base file, not overridden
             self.assertEqual('21', getter.get('section1.otherfoo'))
-
 
     def test_environ_defined_file(self):
         """Test reading from an environment-defined config file."""
@@ -274,40 +273,45 @@ class ConfigGetterTestCase(unittest.TestCase):
 
     def test_default_dict(self):
         """Test fetching from the default config dict."""
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
+        getter = getconf.ConfigGetter('TESTNS', default_dict={'DEFAULT':{"test":'54'}})
         self.assertEqual('54', getter.get('test', 'foo'))
 
     def test_sub_section(self):
         """Test fetching a two dimension dict."""
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}, 'section1':{'key': '88'}})
+        getter = getconf.ConfigGetter('TESTNS', default_dict={'DEFAULT':{"test":'54'}, 'section1':{'key': '88'}})
         self.assertEqual('88', getter.get('section1.key', 'foo'))
 
     def test_default_dict_with_file(self):
         """Test fetching from default and file without named arguments"""
-        getter = getconf.ConfigGetter('TESTNS', [self.example_path], {'DEFAULT':{"test":'54'}})
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], default_dict={'DEFAULT':{"test":'54'}})
         self.assertEqual('54', getter.get('test', 'foo'))
         self.assertEqual('13', getter.get('section1.foo', 'foo'))
 
-    def test_half_named_arguments(self):
-        """Test fetching from default and file with half named arguments"""
-        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={'DEFAULT':{"test":'54'}})
+    def test_default_dict_with_directory(self):
+        """Test fetching from default and file without named arguments"""
+        getter = getconf.ConfigGetter('TESTNS',
+            config_files=[self.example_directory],
+            default_dict={'DEFAULT':{"test":'54'}, 'section1':{'otherfoo':'yes'}},
+        )
         self.assertEqual('54', getter.get('test', 'foo'))
-        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+        self.assertEqual('24', getter.get('section1.foo', 'foo'))
+        self.assertEqual('21', getter.get('section1.otherfoo', 'no'))
 
     def test_named_arguments(self):
         """Test fetching from default and file with named arguments"""
-        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={'DEFAULT':{"test":'54'}})
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path], default_dict={'DEFAULT':{"test":'54'}})
         self.assertEqual('54', getter.get('test', 'foo'))
         self.assertEqual('13', getter.get('section1.foo', 'foo'))
 
     def test_file_overide_default(self):
         """Test that default dict is overridden by file"""
-        getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path],
+            default_dict={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
         self.assertEqual('13', getter.get('section1.foo', 'foo'))
 
     def test_environ_overrides_default(self):
         """Test that default dict is overridden by environment"""
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
+        getter = getconf.ConfigGetter('TESTNS', default_dict={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
         with Environ(TESTNS_SECTION1_FOO='blah'):
             self.assertEqual('blah', getter.get('section1.foo'))
 
