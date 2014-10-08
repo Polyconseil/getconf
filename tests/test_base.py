@@ -35,11 +35,9 @@ class Environ(object):
 
 
 class ConfigGetterTestCase(unittest.TestCase):
-
-    def setUp(self):
-        super(ConfigGetterTestCase, self).setUp()
-        self.example_path = os.path.join(os.path.dirname(__file__), 'example.ini')
-        self.example2_path = os.path.join(os.path.dirname(__file__), 'example2.ini')
+    example_directory = os.path.dirname(__file__) + '/config/'
+    example_path = example_directory + 'example.ini'
+    example2_path = example_directory + 'example2.ini'
 
     def test_no_settings(self):
         """Test when no real settings exist."""
@@ -144,6 +142,41 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual('13', getter.get('section2.bar'))
             # A section.key defined in the base file, not overridden
             self.assertEqual('21', getter.get('section1.otherfoo'))
+
+    def test_from_directory(self):
+        """Test fetching from a directory."""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_directory])
+        self.assertEqual((self.example_path, self.example2_path), getter.search_files)
+        self.assertEqual((self.example_path, self.example2_path), getter.found_files)
+        with Environ(TESTNS_FOO='blah'):
+            # A non-file-defined value
+            self.assertEqual('blah', getter.get('foo', 'foo'))
+            # A sectionless file-defined key
+            self.assertEqual('42', getter.get('bar'))
+            # A section.key file-defined, overridden
+            self.assertEqual('24', getter.get('section1.foo'))
+            # A section.key defined in the second file
+            self.assertEqual('13', getter.get('section2.bar'))
+            # A section.key defined in the base file, not overridden
+            self.assertEqual('21', getter.get('section1.otherfoo'))
+
+    def test_from_directory_and_files(self):
+        """Test fetching from both directories and files"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_directory, self.example_path])
+        self.assertEqual((self.example_path, self.example2_path, self.example_path), getter.search_files)
+        self.assertEqual((self.example_path, self.example2_path, self.example_path), getter.found_files)
+        with Environ(TESTNS_FOO='blah'):
+            # A non-file-defined value
+            self.assertEqual('blah', getter.get('foo', 'foo'))
+            # A sectionless file-defined key
+            self.assertEqual('42', getter.get('bar'))
+            # A section.key file-defined, overridden
+            self.assertEqual('13', getter.get('section1.foo'))
+            # A section.key defined in the second file
+            self.assertEqual('13', getter.get('section2.bar'))
+            # A section.key defined in the base file, not overridden
+            self.assertEqual('21', getter.get('section1.otherfoo'))
+
 
     def test_environ_defined_file(self):
         """Test reading from an environment-defined config file."""

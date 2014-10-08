@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import collections
+import glob
 import logging
 import warnings
 import os
@@ -54,13 +55,14 @@ class ConfigGetter(object):
         - Key 'secret_key' of default config dict
         - The empty string
     """
-    def __init__(self, namespace, config_files=(), defaults=None, *old_style_config_files):
+    def __init__(self, namespace, config=None, defaults=None, *old_style_config_files):
         self.namespace = namespace
         self.defaults = (defaults if defaults is not None else {})
+        config = (config if config is not None else ())
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
-        if isinstance(config_files, compat.string_types):
+        if isinstance(config, compat.string_types):
             warnings.warn(
                 "Using %s is deprecated and will be removed in getconf 1.2.0; please use %s instead" % (
                     "ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini', ...)",
@@ -69,8 +71,18 @@ class ConfigGetter(object):
                 DeprecationWarning,
                 stacklevel=2,
             )
-            config_files = (config_files, ) + (self.defaults, ) + old_style_config_files
+            config_files = (config, ) + (self.defaults, ) + old_style_config_files
             self.defaults = {}
+        else:
+            #extract files from directories
+            config_files = []
+            for conf in config:
+                if conf and (conf[-1] == '/'):
+                    directory_config = glob.glob("%s*.ini" % conf)
+                    directory_config.sort()
+                    config_files.extend(directory_config)
+                else:
+                    config_files.append(conf)
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
         search_files = list(config_files) + [extra_config_file]
