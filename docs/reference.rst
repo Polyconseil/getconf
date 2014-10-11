@@ -4,24 +4,23 @@ Reference
 .. module:: getconf
 
 
-.. class:: ConfigGetter(
-                        namespace,
-                        config_files=[config_file_path, ...],
-                        default_dict={'section':{'key': 'value',...},...}
-                        )
+.. class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...})
 
     This class works as a proxy around both :attr:`os.environ` and INI configuration files.
 
     :param str namespace: The namespace for all configuration entry lookups.
                           If an environment variable of ``<NAMESPACE>_CONFIG`` is set, the file at that path
                           will be loaded.
-    :param list config_files: List of paths of default configuration to use. You could provide files or directories.
-                              For each directory, every files it directly contain will be imported in alphabetical order.
-                              Provided configuration paths are read in the order their name was provided,
-                              each overriding previous values. ``<NAMESPACE>_CONFIG`` takes precedence over
+    :param list config_files: List of ini-style configuration files to use.
+                              Each item may either be the path to a simple file, or to a directory
+                              (if the path ends with a '/'). Each directory path will be replaced by the list of
+                              its directly contained files, in alphabetical order, excluding those whose name
+                              starts with a '.'.
+                              Provided configuration files are read in the order their name was provided,
+                              each overriding the next ones' values. ``<NAMESPACE>_CONFIG`` takes precedence over
                               all ``config_files`` contents.
-    :param dict default_dict: Dictionary of defaults values that are fetch with the lowest priority. Use the same
-                              syntax as files.
+    :param dict defaults: Dictionary of defaults values that are fetch with the lowest priority.
+                          The value for 'section.key' will be looked up at ``defaults['section']['key']``.
 
     .. method:: get(key[, default=''])
 

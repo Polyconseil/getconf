@@ -1,7 +1,7 @@
 getconf
 =======
 
-The ``getconf`` project provides simple configuration helpers for Python project.
+The ``getconf`` project provides simple configuration helpers for Python programs.
 
 It aims at unifying configuration setup across development and production systems,
 respecting the standard procedures in each system:
@@ -39,7 +39,7 @@ Or from GitHub:
 Introduction
 ------------
 
-All configuration values are accessed through ``getconf.ConfigGetter`` object:
+All configuration values are accessed through the ``getconf.ConfigGetter`` object:
 
 .. code-block:: python
 
@@ -49,7 +49,7 @@ All configuration values are accessed through ``getconf.ConfigGetter`` object:
 The above line declares:
 
 * Use the ``fubar`` namespace (mostly used for environment-based configuration, as a prefix for environment variables)
-* Look, in turn, at ``/etc/fubar/settings.ini`` (for production) and ``./local_settings.ini`` (for development)
+* Look, in turn, at ``/etc/fubar/settings.ini`` (for production) and ``./local_settings.ini`` (for development); the latter overriding the former.
 
 
 Once the ``getconf.ConfigGetter`` has been configured, it can be used to retrieve settings:
@@ -62,7 +62,7 @@ Once the ``getconf.ConfigGetter`` has been configured, it can be used to retriev
     allowed_hosts = config.getlist('django.allowed_hosts', ['*'])
 
 All settings have a type (default is text), and accept a default value.
-They use namespaces for easier reading.
+They use namespaces (think 'sections') for easier reading.
 
 With the above setup, ``getconf`` will try to provide ``db.host`` by inspecting
 the following options in order (it stops at the first defined value):
@@ -72,5 +72,33 @@ the following options in order (it stops at the first defined value):
 - From the ``host`` key in the ``[db]`` section of ``./local_settings.ini``
 - From the ``host`` key in the ``[db]`` section of ``/etc/fubar/settings.ini``
 - From the default provided value
+
+
+Recommanded layout
+------------------
+
+Managing configuration can quickly turn into hell; here are a few guidelines:
+
+* Choose where default values are stored
+* Define how complex system-wide setup may get
+* Decide whether local, development configuration is needed
+* And whether user-local overrides are relevant
+
+======================= =============== =============================== =================== =============== ========================
+Use case                Example program Defaults storage                System-wide         Path-based      User-based
+======================= =============== =============================== =================== =============== ========================
+End-user binary         screen, bash    Within the code                 Optional            No              Yes
+Folder-based soft       git, hg, ...    Within the code                 Optional            Yes             Yes (global settings)
+System daemon           uwsgi, ...      Default file with package       Yes                 No              No
+Webapp                  sentry, ...     Within the code                 Yes                 Yes (for dev)   No
+======================= =============== =============================== =================== =============== ========================
+
+This would lead to:
+
+- End-user binary:  ``ConfigGetter('vim', ['/etc/vimrc', '~/.vimrc'])``
+- Folder-based (git): ``ConfigGetter('git', ['/etc/gitconfig', '~/.git/config', './.git/config'])``
+- System daemon: ``ConfigGetter('uwsgi', ['/usr/share/uwsgi/defaults.ini', '/etc/uwsgi/conf.d'])``
+- Webapp: ``ConfigGetter('sentry', ['/etc/sentry/conf.d/', './dev_settings.ini'], defaults=sentry_defaults)``
+
 
 .. _PyPI: http://pypi.python.org/
