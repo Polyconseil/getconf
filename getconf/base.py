@@ -80,16 +80,18 @@ class ConfigGetter(object):
                 final_config_files.append(path)
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
-        search_files = list(final_config_files) + [extra_config_file]
+        if extra_config_file:
+            final_config_files.append(extra_config_file)
 
-        self.search_files = tuple(f for f in search_files if f)
-        self.found_files = tuple(self.parser.read(self.search_files))
+        self.search_files = final_config_files
+        # ConfigParser's precedence rules say "later files take precedence over previous ones".
+        # Since our final_config_files are sorted from least important to most important,
+        # that's exactly what we need.
+        self.found_files = self.parser.read(self.search_files)
 
         logger.info(
-            "Successfully loaded configuration from%sfiles (%s) (searching in (%s))",
-            (" default_dict and " if self.default_dict else " "),
-            ', '.join(self.found_files),
-            ', '.join(self.search_files),
+            "Successfully loaded configuration from files %r (searching in %r)",
+            self.found_files, self.search_files,
         )
 
     def _env_key(self, key, section=''):
