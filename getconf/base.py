@@ -55,31 +55,25 @@ class ConfigGetter(object):
         - Key 'secret_key' of default config dict
         - The empty string
     """
-    def __init__(self, namespace, config_files=(), default_dict=None, *old_style_config_files):
-        self.namespace = namespace
-        self.default_dict = (default_dict if default_dict is not None else {})
+
+    def __init__(self, namespace, config_files=(), defaults=None):
         self.parser = configparser.ConfigParser()
         self.seen_keys = set()
 
-        if isinstance(config_files, compat.string_types):
-            warnings.warn(
-                "Using %s is deprecated and will be removed in getconf 1.2.0; please use %s instead" % (
-                    "ConfigGetter(namespace, 'settings_1.ini', 'settings_2.ini', ...)",
-                    "ConfigGetter(namespace, ['settings_1.ini', 'settings_2.ini', ...])",
-                ),
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            final_config_files = (config_files, self.default_dict) + old_style_config_files
-            self.default_dict = {}
-        else:
-            final_config_files = []
-            for path in config_files:
-                if os.path.isdir(path):
-                    directory_files = glob.glob(os.path.join(path, "*"))
-                    final_config_files.extend(sorted(directory_files))
-                else:
-                    final_config_files.append(path)
+        self.namespace = namespace
+        self.defaults = defaults or {}
+
+        final_config_files = []
+        for path in config_files:
+            # Handle '~/.foobar.conf'
+            path = os.path.abspath(os.path.expanduser(path))
+            if os.path.isdir(path):
+                directory_files = glob.glob(os.path.join(path, '*'))
+                # Reverse order: final_config_files is parsed from left to right,
+                # so 99_foo naturally takes precedence over 10_base
+                final_config_files.extend(sorted(directory_files))
+            else:
+                final_config_files.append(path)
 
         extra_config_file = os.environ.get(self._env_key('config'), '')
         search_files = list(final_config_files) + [extra_config_file]
