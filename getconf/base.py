@@ -26,6 +26,10 @@ else:
 ConfigKey = collections.namedtuple('ConfigKey', ['section', 'entry', 'envvar', 'doc'])
 
 
+class NotFound(KeyError):
+    """Raised when a key is not found in a configuration source."""
+
+
 class ConfigGetter(object):
     """A simple wrapper around ConfigParser + os.environ.
 
@@ -88,54 +92,64 @@ class ConfigGetter(object):
             ', '.join(self.search_files),
         )
 
-    def _env_key(self, *args):
-        args = (self.namespace,) + args
+    def _env_key(self, key, section=''):
+        if section:
+            args = (self.namespace, section, key)
+        else:
+            args = (self.namespace, key)
         return '_'.join(arg.upper() for arg in args)
 
-    def _read_env(self, key, default):
+    def _read_env(self, key):
         """Handle environ-related logic."""
         try:
-            env_value = os.environ[key]
+            value = os.environ[key]
         except KeyError:
-            return default
+            raise NotFound()
 
         if compat.PY2:  # Bytes in PY2, text in PY3.
-            env_value = env_value.decode('utf-8')
-        return env_value
-
-    def _read_parser(self, config_section, key, default):
-        """Handle configparser-related logic."""
-        try:
-            if compat.PY2:
-                value = self.parser.get(config_section, key).decode('utf-8')
-            else:
-                value = self.parser.get(config_section, key, fallback=default)
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            return default
+            value = value.decode('utf-8')
         return value
 
+    def _read_parser(self, config_section, key):
+        """Handle configparser-related logic."""
+        try:
+            value = self.parser.get(config_section, key)
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            raise NotFound()
+
+        if compat.PY2:  # Bytes in PY2, text in PY3
+            value = value.decode('utf-8')
+        return value
+
+    def _get(self, env_key, section, key, default=''):
+
+        try:
+            return self._read_env(env_key)
+        except NotFound:
+            pass
+
+        try:
+            return self._read_parser(section, key)
+        except NotFound:
+            pass
+
+        try:
+            return self.defaults[section][key]
+        except KeyError:
+            pass
+
+        return default
+
     def get(self, key, default='', doc=''):
+        """Fetch a value from the various sources."""
         if '.' in key:
             section, key = key.split('.', 1)
         else:
             section = ''
-
-        value = default
+        env_key = self._env_key(key, section=section)
         config_section = section or 'DEFAULT'
 
-        # Try default dict
-        value = self.default_dict.get(config_section, {}).get(key, value)
-
-        # Try config file
-        value = self._read_parser(config_section, key, default=value)
-
-        # Try environ
-        if section:
-            env_key = self._env_key(section, key)
-        else:
-            env_key = self._env_key(key)
-
-        value = self._read_env(env_key, value)
+        value = self._get(env_key=env_key, section=config_section, key=key, default=default)
 
         self.seen_keys.add(ConfigKey(section=config_section, entry=key, envvar=env_key, doc=doc))
 
