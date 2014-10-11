@@ -3,7 +3,17 @@ getconf
 
 The ``getconf`` project provides simple configuration helpers for Python programs.
 
-It aims at unifying configuration setup across development and production systems,
+It provides a simple API to read from various configuration files and environment variables:
+
+.. code-block:: python
+
+    import getconf
+    config = getconf.ConfigGetter('myproj', ['/etc/myproj.conf'])
+    db_host = config.get('db.host', 'localhost')
+    db_port = config.getint('db.port', 5432)
+
+
+Beyond this API, getconf aims at unifying configuration setup across development and production systems,
 respecting the standard procedures in each system:
 
 * Allow userspace configuration on development systems
@@ -34,22 +44,29 @@ Or from GitHub:
 
 .. code-block:: sh
 
-    $ git clone git://github.com/Polyconseil/getconf
+    git clone git://github.com/Polyconseil/getconf
+
+
+``getconf`` has no external dependancy beyond Python.
+
 
 Introduction
 ------------
+
+.. note:: Please refer to the full doc for :doc:`reference <reference>` and
+          :doc:`advanced usage <advanced>`.
 
 All configuration values are accessed through the ``getconf.ConfigGetter`` object:
 
 .. code-block:: python
 
     import getconf
-    config = getconf.ConfigGetter('fubar', ['/etc/fubar/settings.ini', './local_settings.ini'])
+    config = getconf.ConfigGetter('myproj', ['/etc/myproj/settings.ini', './local_settings.ini'])
 
 The above line declares:
 
-* Use the ``fubar`` namespace (mostly used for environment-based configuration, as a prefix for environment variables)
-* Look, in turn, at ``/etc/fubar/settings.ini`` (for production) and ``./local_settings.ini`` (for development); the latter overriding the former.
+* Use the ``myproj`` namespace (explained later; this is mostly used for environment-based configuration, as a prefix for environment variables)
+* Look, in turn, at ``/etc/myproj/settings.ini`` (for production) and ``./local_settings.ini`` (for development); the latter overriding the former.
 
 
 Once the ``getconf.ConfigGetter`` has been configured, it can be used to retrieve settings:
@@ -57,7 +74,7 @@ Once the ``getconf.ConfigGetter`` has been configured, it can be used to retriev
 .. code-block:: python
 
     debug = config.getbool('debug', False)
-    db_host = config.get('db.host')
+    db_host = config.get('db.host', 'localhost')
     db_port = config.getint('db.port', 5432)
     allowed_hosts = config.getlist('django.allowed_hosts', ['*'])
 
@@ -67,38 +84,71 @@ They use namespaces (think 'sections') for easier reading.
 With the above setup, ``getconf`` will try to provide ``db.host`` by inspecting
 the following options in order (it stops at the first defined value):
 
-- From the environment variable ``FUBAR_DB_HOST``, if defined
-- If a ``FUBAR_CONFIG`` environment variable is defined, from the ``host`` key of the ``[db]`` section of that file
+- From the environment variable ``MYPROJ_DB_HOST``, if defined
 - From the ``host`` key in the ``[db]`` section of ``./local_settings.ini``
-- From the ``host`` key in the ``[db]`` section of ``/etc/fubar/settings.ini``
-- From the default provided value
+- From the ``host`` key in the ``[db]`` section of ``/etc/myproj/settings.ini``
+- From the default provided value, ``'localhost'``
 
 
-Recommanded layout
-------------------
+Features
+--------
 
-Managing configuration can quickly turn into hell; here are a few guidelines:
+**Env-based configuration files**
+    An extra configuration file can be provided through ``MYPROJ_CONFIG``;
+    it takes precedence over other files
 
-* Choose where default values are stored
-* Define how complex system-wide setup may get
-* Decide whether local, development configuration is needed
-* And whether user-local overrides are relevant
+**Default options**
+    An extra dictionary can be provided as ``ConfigGetter(defaults=some_dict)``;
+    it is used after configuration files and environment variables.
 
-======================= =============== =============================== =================== =============== ========================
-Use case                Example program Defaults storage                System-wide         Path-based      User-based
-======================= =============== =============================== =================== =============== ========================
-End-user binary         screen, bash    Within the code                 Optional            No              Yes
-Folder-based soft       git, hg, ...    Within the code                 Optional            Yes             Yes (global settings)
-System daemon           uwsgi, ...      Default file with package       Yes                 No              No
-Webapp                  sentry, ...     Within the code                 Yes                 Yes (for dev)   No
-======================= =============== =============================== =================== =============== ========================
+    It should be a dict mapping a section name to a dict of ``key => value``:
 
-This would lead to:
+    .. code-block:: pycon
 
-- End-user binary:  ``ConfigGetter('vim', ['/etc/vimrc', '~/.vimrc'])``
-- Folder-based (git): ``ConfigGetter('git', ['/etc/gitconfig', '~/.git/config', './.git/config'])``
-- System daemon: ``ConfigGetter('uwsgi', ['/usr/share/uwsgi/defaults.ini', '/etc/uwsgi/conf.d'])``
-- Webapp: ``ConfigGetter('sentry', ['/etc/sentry/conf.d/', './dev_settings.ini'], defaults=sentry_defaults)``
+        >>> config = ConfigGetter('myproj', defaults={'db': {'host': 'localhost'}})
+        >>> config.get('db.host')
+        'localhost'
+
+**Typed getters**
+    ``getconf`` can convert options into a few standard types:
+
+    .. code-block:: python
+
+        config.getbool('db.enabled', False)
+        config.getint('db.port', 5432)
+        config.getlist('db.tables')  # Expects a comma-separated list
+
+Concepts
+--------
+
+``getconf`` relies on a few key concepts:
+
+**namespace**
+    Each ``ConfigGetter`` works within a specific namespace (its first argument).
+
+    Its goal is to avoid mistakes while reading the environment:
+    with ``ConfigGetter(namespace='myproj')``, only environment variables
+    beginning with ``MYPROJ_`` will be read
+
+**Sections**
+    The configuration options for a project often grow quite a lot;
+    to restrict complexity, ``getconf`` splits values into sections,
+    similar to Python's ``configparser`` module.
+
+    Section are handled differently depending on the actual configuration
+    source:
+
+    * ``section.key`` is mapped to ``MYPROJ_SECTION_KEY`` for environment variables
+    * ``section.key`` is mapped to ``[section] key =`` in configuration files
+    * ``section.key`` is mapped to ``defaults['section']['key']`` in the defaults dict.
+
+**Default section**
+    Some settings are actually "globals" for a projet.
+    This is handled by unset section names:
+
+    * ``key`` is mapped to ``MYPROJ_KEY`` for environment variables
+    * ``key`` is mapped to ``[DEFAULTS] key =`` in configuration files
+    * ``key`` is mapped to ``defaults['DEFAULTS']['key']`` in the defaults dict.
 
 
 .. _PyPI: http://pypi.python.org/

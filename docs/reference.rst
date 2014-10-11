@@ -4,6 +4,9 @@ Reference
 .. module:: getconf
 
 
+The ``ConfigGetter`` class
+---------------------------
+
 .. class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...})
 
     This class works as a proxy around both :attr:`os.environ` and INI configuration files.

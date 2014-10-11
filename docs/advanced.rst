@@ -1,7 +1,34 @@
 Advanced use
 ============
 
-getconf supports some more complex setups:
+getconf supports some more complex setups; this document describes advanced options.
+
+
+Recommanded layout
+------------------
+
+Managing configuration can quickly turn into hell; here are a few guidelines:
+
+* Choose where default values are stored
+* Define how complex system-wide setup may get
+* Decide whether local, development configuration is needed
+* And whether user-local overrides are relevant
+
+======================= =============== =============================== =================== =============== ========================
+Use case                Example program Defaults storage                System-wide         Path-based      User-based
+======================= =============== =============================== =================== =============== ========================
+End-user binary         screen, bash    Within the code                 Optional            No              Yes
+Folder-based soft       git, hg, ...    Within the code                 Optional            Yes             Yes (global settings)
+System daemon           uwsgi, ...      Default file with package       Yes                 No              No
+Webapp                  sentry, ...     Within the code                 Yes                 Yes (for dev)   No
+======================= =============== =============================== =================== =============== ========================
+
+This would lead to:
+
+- End-user binary:  ``ConfigGetter('vim', ['/etc/vimrc', '~/.vimrc'])``
+- Folder-based (git): ``ConfigGetter('git', ['/etc/gitconfig', '~/.git/config', './.git/config'])``
+- System daemon: ``ConfigGetter('uwsgi', ['/usr/share/uwsgi/defaults.ini', '/etc/uwsgi/conf.d'])``
+- Webapp: ``ConfigGetter('sentry', ['/etc/sentry/conf.d/', './dev_settings.ini'], defaults=sentry_defaults)``
 
 
 Defaults
