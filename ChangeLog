@@ -1,6 +1,19 @@
 ChangeLog
 =========
 
+
+1.2.0 (master)
+--------------
+
+*New:*
+
+    * Add support for directory-based configuration and providing defaults through a dict
+
+*Removed:*
+
+    * Remove support for ``ConfigGetter(namespace, file1, file2, file3)`` syntax (deprecated in 1.1.0),
+      use ``ConfigGetter(namespace, [file1, file2, file3])`` instead
+
 1.1.0 (2014-08-18)
 ------------------
 
