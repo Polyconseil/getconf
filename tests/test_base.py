@@ -213,6 +213,31 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_FOO='14'):
             self.assertEqual(14, getter.getint('foo'))
 
+    def test_getfloat_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='42'):
+            value = getter.getfloat('foo')
+            self.assertEqual(42, value)
+            self.assertEqual(42.0, value)
+
+        with Environ(TESTNS_FOO='42.3'):
+            self.assertEqual(42.3, getter.getfloat('foo'))
+
+    def test_getfloat_empty_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO=''):
+            self.assertRaises(ValueError, getter.getfloat, 'foo')
+
+    def test_getfloat_bad_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='a'):
+            self.assertRaises(ValueError, getter.getfloat, 'foo')
+
+    def test_getfloat_bad_format(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='1,2'):
+            self.assertRaises(ValueError, getter.getfloat, 'foo')
+
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')
         section = getter.get_section('foo')

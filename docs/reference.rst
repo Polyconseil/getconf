@@ -71,6 +71,15 @@ The ``ConfigGetter`` class
         The following values are considered as ``True`` : ``'on'``, ``'yes'``, ``'true'``, ``'1'``.
         Case variations of those values also count as ``True``.
 
+    .. method:: getint(key[, default=False])
+
+        Retrieve a key from available configuration sources, and parse it as an integer.
+
+
+    .. method:: getfloat(key[, default=False])
+
+        Retrieve a key from available configuration sources, and parse it as a floating point number.
+
     .. method:: get_section(section_name)
 
         Retrieve a dict-like proxy over a configuration section.

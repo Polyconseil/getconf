@@ -117,6 +117,7 @@ Features
         config.getbool('db.enabled', False)
         config.getint('db.port', 5432)
         config.getlist('db.tables')  # Expects a comma-separated list
+        config.getfloat('db.auto_vacuum_scale_factor', 0.2)
 
 Concepts
 --------

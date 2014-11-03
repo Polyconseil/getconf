@@ -181,6 +181,11 @@ class ConfigGetter(object):
         value = self.get(key, default=default, doc=doc)
         return int(value)
 
+    def getfloat(self, key, default=False, doc=''):
+        """Retrieve a value as a float."""
+        value = self.get(key, default=default, doc=doc)
+        return float(value)
+
     def get_section(self, section_name):
         """Return a dict-like object for the chosen section."""
         return ConfigSectionGetter(self, section_name)
