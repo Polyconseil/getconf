@@ -57,11 +57,11 @@ The ``ConfigGetter`` class
 
         .. code-block:: pycon
 
-            >>> os.environ['a'] = 'foo'
-            >>> os.environ['b'] = 'foo,bar, baz,,'
-            >>> getter.get('a')
+            >>> os.environ['A'] = 'foo'
+            >>> os.environ['B'] = 'foo,bar, baz,,'
+            >>> getter.getlist('a')
             ['foo']
-            >>> getter.get('b')
+            >>> getter.getlist('b')
             ['foo', 'bar', 'baz']
 
     .. method:: getbool(key[, default=False])
