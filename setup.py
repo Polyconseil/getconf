@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010-2013 Polyconseil SAS
+# Copyright (c) 2010-2015 Polyconseil SAS
 # This software is distributed under the two-clause BSD license.
 
 import codecs
