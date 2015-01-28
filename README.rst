@@ -148,8 +148,8 @@ Concepts
     This is handled by unset section names:
 
     * ``key`` is mapped to ``MYPROJ_KEY`` for environment variables
-    * ``key`` is mapped to ``[DEFAULTS] key =`` in configuration files
-    * ``key`` is mapped to ``defaults['DEFAULTS']['key']`` in the defaults dict.
+    * ``key`` is mapped to ``[DEFAULT] key =`` in configuration files
+    * ``key`` is mapped to ``defaults['DEFAULT']['key']`` in the defaults dict.
 
 
 .. _PyPI: http://pypi.python.org/
