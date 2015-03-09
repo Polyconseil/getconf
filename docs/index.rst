@@ -10,6 +10,7 @@ Contents:
    self
    reference
    advanced
+   goals
    changelog
 
 
