@@ -67,27 +67,31 @@ class ConfigGetter(object):
         self.namespace = namespace
         self.defaults = defaults or {}
 
-        final_config_files = []
-        for path in config_files:
+        self.search_files = []
+        extra_config_file = os.environ.get(self._env_key('config'), None)
+
+        for path in list(config_files) + [extra_config_file]:
+            if path is None:
+                continue
             # Handle '~/.foobar.conf'
             path = os.path.abspath(os.path.expanduser(path))
             if os.path.isdir(path):
-                directory_files = glob.glob(os.path.join(path, '*'))
+                path = os.path.join(path, '*')
+
+            self.search_files.append(path)
+
+        final_config_files = []
+        for path in self.search_files:
+            directory_files = glob.glob(path)
+            if directory_files:
                 # Reverse order: final_config_files is parsed from left to right,
                 # so 99_foo naturally takes precedence over 10_base
                 final_config_files.extend(sorted(directory_files))
-            else:
-                final_config_files.append(path)
 
-        extra_config_file = os.environ.get(self._env_key('config'), '')
-        if extra_config_file:
-            final_config_files.append(extra_config_file)
-
-        self.search_files = final_config_files
         # ConfigParser's precedence rules say "later files take precedence over previous ones".
         # Since our final_config_files are sorted from least important to most important,
         # that's exactly what we need.
-        self.found_files = self.parser.read(self.search_files)
+        self.found_files = self.parser.read(final_config_files)
 
         logger.info(
             "Successfully loaded configuration from files %r (searching in %r)",

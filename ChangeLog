@@ -7,6 +7,8 @@ ChangeLog
 *New:*
 
     * Add getfloat() method
+    * Allow globs in `config_files`
+    * <PROJECT>_CONFIG env var will now have the same behaviour than `config_files` items
 
 
 1.2.1 (2014-10-24)

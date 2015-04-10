@@ -16,7 +16,9 @@ The ``ConfigGetter`` class
                           will be loaded.
     :param list config_files: List of ini-style configuration files to use.
                               Each item may either be the path to a simple file, or to a directory
-                              (if the path ends with a '/'). Each directory path will be replaced by the list of
+                              (if the path ends with a '/') or a glob pattern (which will select all the files
+                              matching the pattern according to the rules used by the shell).
+                              Each directory path will be replaced by the list of
                               its directly contained files, in alphabetical order, excluding those whose name
                               starts with a '.'.
                               Provided configuration files are read in the order their name was provided,

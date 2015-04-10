@@ -94,7 +94,7 @@ Features
 --------
 
 **Env-based configuration files**
-    An extra configuration file can be provided through ``MYPROJ_CONFIG``;
+    An extra configuration file/directory/glob can be provided through ``MYPROJ_CONFIG``;
     it takes precedence over other files
 
 **Default options**
