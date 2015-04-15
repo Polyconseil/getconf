@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2010-2015 Polyconseil SAS
 # This software is distributed under the two-clause BSD license.
-
-import codecs
+from __future__ import unicode_literals
+import io
 import os
 import re
-import sys
 
 from setuptools import setup
 
@@ -17,7 +16,7 @@ def get_version(package_name):
     version_re = re.compile(r"^__version__ = [\"']([\w_.-]+)[\"']$")
     package_components = package_name.split('.')
     init_path = os.path.join(root_dir, *(package_components + ['__init__.py']))
-    with codecs.open(init_path, 'r', 'utf-8') as f:
+    with io.open(init_path, 'r', encoding='utf-8') as f:
         for line in f:
             match = version_re.match(line[:-1])
             if match:
@@ -25,14 +24,25 @@ def get_version(package_name):
     return '0.1.0'
 
 
-PACKAGE = 'getconf'
+def get_long_description(filename):
+    with io.open(filename, 'r', encoding='utf-8') as f:
+        text = f.read()
 
+    return text
+
+
+def get_requirements(filename):
+    with io.open(filename, 'r', encoding='utf-8') as f:
+        return f.readlines()
+
+
+PACKAGE = 'getconf'
 
 setup(
     name=PACKAGE,
     version=get_version(PACKAGE),
     description="getconf, a versatile configuration lib for Python projects",
-    long_description=''.join(codecs.open('README.rst', 'r', 'utf-8').readlines()),
+    long_description=get_long_description('README.rst'),
     author="Polyconseil",
     author_email="opensource+%s@polyconseil.fr" % PACKAGE,
     license="BSD",
@@ -41,7 +51,7 @@ setup(
     download_url="https://pypi.python.org/pypi/%s/" % PACKAGE,
     packages=[PACKAGE],
     platforms=["OS Independent"],
-    install_requires=codecs.open('requirements.txt', 'r', 'utf-8').readlines(),
+    install_requires=get_requirements('requirements.txt'),
     setup_requires=[
         'setuptools>=0.8',
     ],
