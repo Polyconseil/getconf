@@ -7,7 +7,7 @@ import io
 import os
 import re
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -54,7 +54,7 @@ setup(
     keywords=['configuration', 'environment', 'setup', 'getconf', 'config'],
     url="https://github.com/Polyconseil/%s/" % PACKAGE,
     download_url="https://pypi.python.org/pypi/%s/" % PACKAGE,
-    packages=[PACKAGE],
+    packages=find_packages(exclude='tests'),
     platforms=["OS Independent"],
     install_requires=get_requirements('requirements.txt'),
     setup_requires=[
