@@ -28,6 +28,11 @@ def get_long_description(filename):
     with io.open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
 
+        # Replace :doc: directive by *title*
+        pattern = re.compile(r'(?P<matched>:doc:`(?P<title>.*)\s+<(?P<target>[^>]+)>`)')
+        for matched_text, title, target in pattern.findall(text):
+            text = text.replace(matched_text, '*%s*' % (title or target))
+
     return text
 
 
