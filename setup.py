@@ -54,7 +54,7 @@ setup(
     keywords=['configuration', 'environment', 'setup', 'getconf', 'config'],
     url="https://github.com/Polyconseil/%s/" % PACKAGE,
     download_url="https://pypi.python.org/pypi/%s/" % PACKAGE,
-    packages=find_packages(exclude='tests'),
+    packages=find_packages(exclude=['tests']),
     platforms=["OS Independent"],
     install_requires=get_requirements('requirements.txt'),
     setup_requires=[
@@ -75,5 +75,5 @@ setup(
         "Topic :: System :: Installation/Setup",
         "Topic :: System :: Systems Administration",
     ],
-    test_suite='tests',
+    include_package_data=True,
 )
