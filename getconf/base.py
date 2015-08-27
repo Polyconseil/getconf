@@ -127,8 +127,7 @@ class ConfigGetter(object):
             value = value.decode('utf-8')
         return value
 
-    def _get(self, env_key, section, key, default=''):
-
+    def _read(self, env_key, section, key, default):
         try:
             return self._read_env(env_key)
         except NotFound:
@@ -146,30 +145,50 @@ class ConfigGetter(object):
 
         return default
 
-    def get(self, key, default='', doc=''):
-        """Fetch a value from the various sources."""
+    def _get(self, key, default, doc):
         if '.' in key:
             section, key = key.split('.', 1)
         else:
             section = ''
         env_key = self._env_key(key, section=section)
         config_section = section or 'DEFAULT'
-
-        value = self._get(env_key=env_key, section=config_section, key=key, default=default)
-
+        value = self._read(env_key=env_key, section=config_section, key=key, default=default)
         self.seen_keys.add(ConfigKey(section=config_section, entry=key, envvar=env_key, doc=doc))
-
         return value
 
-    def getlist(self, key, default='', doc=''):
+    def get(self, key, default='', doc=''):
+        """Compatibility method to retrieve values from various import sources. Soon deprecated."""
+        assert default is None or isinstance(default, unicode)
+        warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
+        return self._get(key, default=default, doc=doc)
+
+    def getstr(self, key, default='', doc=''):
+        """Retrieve a value as a string."""
+        assert default is None or isinstance(default, unicode)
+        return self._get(key, default=default, doc=doc)
+
+    def getlist(self, key, default=(), doc='', sep=','):
         """Retrieve a value as a list.
 
-        Splits on ',', strips entries and return only non-empty values.
+        Splits on ',', strips entries and returns only non-empty values.
         """
-        value = self.get(key, default=default, doc=doc)
-        values = [entry.strip() for entry in value.split(',')]
-        values = [entry for entry in values if entry]
-        return values
+        assert (
+            isinstance(default, unicode) or
+            default is None or isinstance(default, (list, tuple))
+        )
+        if isinstance(default, unicode):
+            warnings.warn(
+                "Use of a string as default value in getlist() is deprecated. Use lists instead",
+                DeprecationWarning
+            )
+        value = self._get(key, default=default, doc=doc)
+        if isinstance(value, unicode):
+            values = [entry.strip() for entry in value.split(sep)]
+            values = [entry for entry in values if entry]
+            return values
+        elif value is None:
+            return None
+        return list(value)
 
     def getbool(self, key, default=False, doc=''):
         """Retrieve a value as a boolean.
@@ -177,17 +196,26 @@ class ConfigGetter(object):
         Accepts the following values as 'True':
             on, yes, true, 1
         """
-        value = self.get(key, default=compat.text_type(default), doc=doc)
+        assert default is None or isinstance(default, bool)
+        value = self._get(key, default=default, doc=doc)
+        if value is None:
+            return None
         return compat.text_type(value).lower() in ('on', 'true', 'yes', '1')
 
-    def getint(self, key, default=False, doc=''):
+    def getint(self, key, default=0, doc=''):
         """Retrieve a value as an integer."""
-        value = self.get(key, default=default, doc=doc)
+        assert default is None or isinstance(default, int)
+        value = self._get(key, default=default, doc=doc)
+        if value is None:
+            return None
         return int(value)
 
-    def getfloat(self, key, default=False, doc=''):
+    def getfloat(self, key, default=0.0, doc=''):
         """Retrieve a value as a float."""
-        value = self.get(key, default=default, doc=doc)
+        assert default is None or isinstance(default, float)
+        value = self._get(key, default=default, doc=doc)
+        if value is None:
+            return None
         return float(value)
 
     def get_section(self, section_name):

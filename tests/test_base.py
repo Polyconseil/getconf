@@ -42,8 +42,8 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_no_settings(self):
         """Test when no real settings exist."""
         getter = getconf.ConfigGetter('TESTNS')
-        self.assertEqual('foo', getter.get('bar', 'foo'))
-        self.assertEqual('', getter.get('bar'))
+        self.assertEqual('foo', getter.getstr('bar', 'foo'))
+        self.assertEqual('', getter.getstr('bar'))
         self.assertEqual([], getter.search_files)
         self.assertEqual([], getter.found_files)
 
@@ -51,23 +51,23 @@ class ConfigGetterTestCase(unittest.TestCase):
         """Test fetching key from environment."""
         getter = getconf.ConfigGetter('TESTNS')
         with Environ(TESTNS_FOO='blah'):
-            self.assertEqual('blah', getter.get('foo', 'foo'))
-            self.assertEqual('', getter.get('bar'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
+            self.assertEqual('', getter.getstr('bar'))
 
     def test_environ_section(self):
         """Test fetching section.key from environment."""
         getter = getconf.ConfigGetter('TESTNS')
         with Environ(TESTNS_FOO_BAR='blah'):
-            self.assertEqual('blah', getter.get('foo.bar', 'foo'))
-            self.assertEqual('', getter.get('foo.baz'))
-            self.assertEqual('', getter.get('foo'))
+            self.assertEqual('blah', getter.getstr('foo.bar', 'foo'))
+            self.assertEqual('', getter.getstr('foo.baz'))
+            self.assertEqual('', getter.getstr('foo'))
 
     def test_nonexistent_file(self):
         """Test fetching from a non-existent config file."""
         getter = getconf.ConfigGetter('TESTNS', ['/invalid/path'])
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
         self.assertEqual(['/invalid/path'], getter.search_files)
         self.assertEqual([], getter.found_files)
 
@@ -78,11 +78,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual([self.example_path], getter.found_files)
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('42', getter.get('bar'))
+            self.assertEqual('42', getter.getstr('bar'))
             # A section.key file-defined
-            self.assertEqual('13', getter.get('section1.foo'))
+            self.assertEqual('13', getter.getstr('section1.foo'))
             # Same with an int
             self.assertEqual(13, getter.getint('section1.foo'))
 
@@ -93,15 +93,15 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual([self.example_path, self.example2_path], getter.found_files)
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('42', getter.get('bar'))
+            self.assertEqual('42', getter.getstr('bar'))
             # A section.key file-defined in example and example2 => example2 wins
-            self.assertEqual('24', getter.get('section1.foo'))
+            self.assertEqual('24', getter.getstr('section1.foo'))
             # A section.key defined in the second file only
-            self.assertEqual('13', getter.get('section2.bar'))
+            self.assertEqual('13', getter.getstr('section2.bar'))
             # A section.key defined in the base file, not overridden
-            self.assertEqual('21', getter.get('section1.otherfoo'))
+            self.assertEqual('21', getter.getstr('section1.otherfoo'))
 
     def test_from_directory(self):
         """Test fetching from a directory."""
@@ -110,15 +110,15 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual([self.example_path, self.example2_path], getter.found_files)
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('42', getter.get('bar'))
+            self.assertEqual('42', getter.getstr('bar'))
             # A section.key file-defined in both => example2 wins
-            self.assertEqual('24', getter.get('section1.foo'))
+            self.assertEqual('24', getter.getstr('section1.foo'))
             # A section.key defined in the second file only
-            self.assertEqual('13', getter.get('section2.bar'))
+            self.assertEqual('13', getter.getstr('section2.bar'))
             # A section.key defined in the base file, not overridden
-            self.assertEqual('21', getter.get('section1.otherfoo'))
+            self.assertEqual('21', getter.getstr('section1.otherfoo'))
 
     def test_from_directory_and_files(self):
         """Test fetching from both directories and files"""
@@ -127,15 +127,15 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual([self.example_path, self.example2_path, self.example_path], getter.found_files)
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('42', getter.get('bar'))
+            self.assertEqual('42', getter.getstr('bar'))
             # A section.key file-defined in all three => example wins
-            self.assertEqual('13', getter.get('section1.foo'))
+            self.assertEqual('13', getter.getstr('section1.foo'))
             # A section.key defined in the second file
-            self.assertEqual('13', getter.get('section2.bar'))
+            self.assertEqual('13', getter.getstr('section2.bar'))
             # A section.key defined in the base file, not overridden
-            self.assertEqual('21', getter.get('section1.otherfoo'))
+            self.assertEqual('21', getter.getstr('section1.otherfoo'))
 
     def test_from_globs(self):
         """Test fetching from globs"""
@@ -144,15 +144,15 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual([self.example2_path], getter.found_files)
         with Environ(TESTNS_FOO='blah'):
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('', getter.get('bar'))
+            self.assertEqual('', getter.getstr('bar'))
             # A section.key file-defined in all three => example wins
-            self.assertEqual('24', getter.get('section1.foo'))
+            self.assertEqual('24', getter.getstr('section1.foo'))
             # A section.key defined in the second file
-            self.assertEqual('13', getter.get('section2.bar'))
+            self.assertEqual('13', getter.getstr('section2.bar'))
             # A section.key defined in the base file, not overridden
-            self.assertEqual('', getter.get('section1.otherfoo'))
+            self.assertEqual('', getter.getstr('section1.otherfoo'))
 
     def test_environ_defined_globs(self):
         """Test reading from an environment-defined config globs"""
@@ -161,11 +161,11 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual([os.path.join(self.example_directory, '*2.ini')], getter.search_files)
             self.assertEqual([self.example2_path], getter.found_files)
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('', getter.get('bar'))
+            self.assertEqual('', getter.getstr('bar'))
             # A section.key file-defined
-            self.assertEqual('24', getter.get('section1.foo'))
+            self.assertEqual('24', getter.getstr('section1.foo'))
 
     def test_environ_defined_file(self):
         """Test reading from an environment-defined config file."""
@@ -174,21 +174,72 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual([self.example_path], getter.search_files)
             self.assertEqual([self.example_path], getter.found_files)
             # A non-file-defined value
-            self.assertEqual('blah', getter.get('foo', 'foo'))
+            self.assertEqual('blah', getter.getstr('foo', 'foo'))
             # A sectionless file-defined key
-            self.assertEqual('42', getter.get('bar'))
+            self.assertEqual('42', getter.getstr('bar'))
             # A section.key file-defined
-            self.assertEqual('13', getter.get('section1.foo'))
+            self.assertEqual('13', getter.getstr('section1.foo'))
 
     def test_environ_overrides_config(self):
         """Tests that environment variables take precedence over files."""
         getter = getconf.ConfigGetter('TESTNS', [self.example_path])
-        self.assertEqual('42', getter.get('bar'))
-        self.assertEqual('13', getter.get('section1.foo'))
+        self.assertEqual('42', getter.getstr('bar'))
+        self.assertEqual('13', getter.getstr('section1.foo'))
 
         with Environ(TESTNS_BAR='blah', TESTNS_SECTION1_FOO='baz'):
-            self.assertEqual('blah', getter.get('bar'))
-            self.assertEqual('baz', getter.get('section1.foo'))
+            self.assertEqual('blah', getter.getstr('bar'))
+            self.assertEqual('baz', getter.getstr('section1.foo'))
+
+    def test_get_defaults_dict(self):
+        """Test fetching from the default config dict with non-string values."""
+        warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
+        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
+        self.assertEqual('54', getter.get('test'))
+        self.assertEqual('54', getter.getstr('test'))
+        self.assertEqual(54, getter.getint('test'))
+        self.assertEqual(54.0, getter.getfloat('test'))
+        self.assertEqual(False, getter.getbool('test'))
+        self.assertEqual(['54', ], getter.getlist('test'))
+
+    def test_get_defaults(self):
+        """Test fetching from the default config dict."""
+        warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual('', getter.get('test'))
+        self.assertEqual('foo', getter.get('test', 'foo'))
+        self.assertEqual(None, getter.get('test', None))
+
+    def test_get_defaults_raises(self):
+        """Test fetching from the default config dict with non-string values."""
+        warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
+        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
+        with self.assertRaises(AssertionError):
+            getter.get('test', False)
+        with self.assertRaises(AssertionError):
+            getter.get('test', 42)
+        with self.assertRaises(AssertionError):
+            getter.get('test', 4.2)
+        with self.assertRaises(AssertionError):
+            getter.get('test', (1, 2))
+
+    def test_getstr_defaults(self):
+        """Test fetching from the default config dict."""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual('', getter.getstr('test'))
+        self.assertEqual('foo', getter.getstr('test', 'foo'))
+        self.assertEqual(None, getter.getstr('test', None))
+
+    def test_getstr_defaults_raises(self):
+        """Test fetching from the default config dict with non-string values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        with self.assertRaises(AssertionError):
+            getter.getstr('test', False)
+        with self.assertRaises(AssertionError):
+            getter.getstr('test', 42)
+        with self.assertRaises(AssertionError):
+            getter.getstr('test', 4.2)
+        with self.assertRaises(AssertionError):
+            getter.getstr('test', (1, 2))
 
     def test_getlist_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -213,6 +264,24 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getlist_nonempty_default(self):
         getter = getconf.ConfigGetter('TESTNS', [])
         self.assertEqual(['x', 'foo', 'bar'], getter.getlist('foo', 'x,,foo ,   , bar,,'))
+        self.assertEqual(['x', 'foo', 'bar'], getter.getlist('foo', ['x', 'foo', 'bar']))
+        self.assertEqual(['x', 'foo', 'bar'], getter.getlist('foo', ('x', 'foo', 'bar')))
+
+    def test_getlist_defaults(self):
+        """Test fetching the defaults in every possible way"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual([], getter.getlist('test'))
+        self.assertEqual(None, getter.getlist('test', None))
+
+    def test_getlist_defaults_raises(self):
+        """Test fetching from the default config dict with non-list or string values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        with self.assertRaises(AssertionError):
+            getter.getlist('test', False)
+        with self.assertRaises(AssertionError):
+            getter.getlist('test', 42)
+        with self.assertRaises(AssertionError):
+            getter.getlist('test', 4.2)
 
     def test_getbool_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -234,14 +303,44 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_FOO='0'):
             self.assertFalse(getter.getbool('foo'))
 
-    def test_getbool_nonempty_default(self):
-        getter = getconf.ConfigGetter('TESTNS', [])
-        self.assertTrue(getter.getbool('foo', 'yes'))
+    def test_getbool_defaults(self):
+        """Test fetching the default in every possible way"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual(False, getter.getbool('test'))
+        self.assertTrue(getter.getbool('foo', True))
+        self.assertEqual(None, getter.getbool('test', None))
+
+    def test_getbool_defaults_raises(self):
+        """Test fetching from the default config dict with non-bool values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        with self.assertRaises(AssertionError):
+            getter.getbool('test', 'False')
+        with self.assertRaises(AssertionError):
+            getter.getbool('test', 0)
+        with self.assertRaises(AssertionError):
+            getter.getbool('test', 0.0)
 
     def test_getint_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
         with Environ(TESTNS_FOO='14'):
             self.assertEqual(14, getter.getint('foo'))
+
+    def test_getint_defaults(self):
+        """Test fetching the default in every possible way"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual(0, getter.getint('test'))
+        self.assertEqual(42, getter.getint('foo', 42))
+        self.assertEqual(None, getter.getint('test', None))
+
+    def test_getint_defaults_raises(self):
+        """Test fetching from the default config dict with non-int values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        with self.assertRaises(AssertionError):
+            getter.getint('test', 'False')
+        with self.assertRaises(AssertionError):
+            getter.getint('test', '0')
+        with self.assertRaises(AssertionError):
+            getter.getint('test', 0.0)
 
     def test_getfloat_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -268,6 +367,23 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_FOO='1,2'):
             self.assertRaises(ValueError, getter.getfloat, 'foo')
 
+    def test_getfloat_defaults(self):
+        """Test fetching the default in every possible way"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual(0.0, getter.getfloat('test'))
+        self.assertEqual(42.3, getter.getfloat('foo', 42.3))
+        self.assertEqual(None, getter.getfloat('test', None))
+
+    def test_getfloat_defaults_raises(self):
+        """Test fetching from the default config dict with non-float values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        with self.assertRaises(AssertionError):
+            getter.getfloat('test', 'False')
+        with self.assertRaises(AssertionError):
+            getter.getfloat('test', '0.0')
+        with self.assertRaises(AssertionError):
+            getter.getfloat('test', 0)
+
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')
         section = getter.get_section('foo')
@@ -281,26 +397,21 @@ class ConfigGetterTestCase(unittest.TestCase):
 
     def test_unicode(self):
         getter = getconf.ConfigGetter('TESTNS', [self.example_path])
-        self.assertEqual("Åuŧølīß", getter.get('encoding.noascii'))
+        self.assertEqual("Åuŧølīß", getter.getstr('encoding.noascii'))
 
         with Environ(TESTNS_ENCODING_NOASCII="ßlūelÿ"):
-            self.assertEqual("ßlūelÿ", getter.get('encoding.noascii'))
-
-    def test_defaults(self):
-        """Test fetching from the default config dict."""
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
-        self.assertEqual('54', getter.get('test', 'foo'))
+            self.assertEqual("ßlūelÿ", getter.getstr('encoding.noascii'))
 
     def test_sub_section(self):
         """Test fetching a two dimension dict."""
         getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}, 'section1':{'key': '88'}})
-        self.assertEqual('88', getter.get('section1.key', 'foo'))
+        self.assertEqual('88', getter.getstr('section1.key', 'foo'))
 
     def test_defaults_with_file(self):
         """Test fetching from default and file without named arguments"""
         getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={'DEFAULT':{"test":'54'}})
-        self.assertEqual('54', getter.get('test', 'foo'))
-        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+        self.assertEqual('54', getter.getstr('test', 'foo'))
+        self.assertEqual('13', getter.getstr('section1.foo', 'foo'))
 
     def test_defaults_with_directory(self):
         """Test fetching from default and file without named arguments"""
@@ -308,27 +419,27 @@ class ConfigGetterTestCase(unittest.TestCase):
             config_files=[self.example_directory],
             defaults={'DEFAULT':{"test":'54'}, 'section1':{'otherfoo':'yes'}},
         )
-        self.assertEqual('54', getter.get('test', 'foo'))
-        self.assertEqual('24', getter.get('section1.foo', 'foo'))
-        self.assertEqual('21', getter.get('section1.otherfoo', 'no'))
+        self.assertEqual('54', getter.getstr('test', 'foo'))
+        self.assertEqual('24', getter.getstr('section1.foo', 'foo'))
+        self.assertEqual('21', getter.getstr('section1.otherfoo', 'no'))
 
     def test_named_arguments(self):
         """Test fetching from default and file with named arguments"""
         getter = getconf.ConfigGetter('TESTNS', [self.example_path], defaults={'DEFAULT':{"test":'54'}})
-        self.assertEqual('54', getter.get('test', 'foo'))
-        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+        self.assertEqual('54', getter.getstr('test', 'foo'))
+        self.assertEqual('13', getter.getstr('section1.foo', 'foo'))
 
     def test_file_overide_default(self):
         """Test that default dict is overridden by file"""
         getter = getconf.ConfigGetter('TESTNS', [self.example_path],
             defaults={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
-        self.assertEqual('13', getter.get('section1.foo', 'foo'))
+        self.assertEqual('13', getter.getstr('section1.foo', 'foo'))
 
     def test_environ_overrides_default(self):
         """Test that default dict is overridden by environment"""
         getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
         with Environ(TESTNS_SECTION1_FOO='blah'):
-            self.assertEqual('blah', getter.get('section1.foo'))
+            self.assertEqual('blah', getter.getstr('section1.foo'))
 
 
 if __name__ == '__main__':
