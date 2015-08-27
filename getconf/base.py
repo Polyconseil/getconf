@@ -158,13 +158,13 @@ class ConfigGetter(object):
 
     def get(self, key, default='', doc=''):
         """Compatibility method to retrieve values from various import sources. Soon deprecated."""
-        assert default is None or isinstance(default, text_type)
+        assert default is None or isinstance(default, compat.text_type)
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
         return self._get(key, default=default, doc=doc)
 
     def getstr(self, key, default='', doc=''):
         """Retrieve a value as a string."""
-        assert default is None or isinstance(default, text_type)
+        assert default is None or isinstance(default, compat.text_type)
         return self._get(key, default=default, doc=doc)
 
     def getlist(self, key, default=(), doc='', sep=','):
@@ -173,16 +173,16 @@ class ConfigGetter(object):
         Splits on ',', strips entries and returns only non-empty values.
         """
         assert (
-            isinstance(default, text_type) or
+            isinstance(default, compat.text_type) or
             default is None or isinstance(default, (list, tuple))
         )
-        if isinstance(default, text_type):
+        if isinstance(default, compat.text_type):
             warnings.warn(
                 "Use of a string as default value in getlist() is deprecated. Use lists instead",
                 DeprecationWarning
             )
         value = self._get(key, default=default, doc=doc)
-        if isinstance(value, text_type):
+        if isinstance(value, compat.text_type):
             values = [entry.strip() for entry in value.split(sep)]
             values = [entry for entry in values if entry]
             return values
