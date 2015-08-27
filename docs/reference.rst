@@ -27,7 +27,7 @@ The ``ConfigGetter`` class
     :param dict defaults: Dictionary of defaults values that are fetch with the lowest priority.
                           The value for 'section.key' will be looked up at ``defaults['section']['key']``.
 
-    .. method:: get(key[, default=''])
+    .. method:: getstr(key[, default=''])
 
         Retrieve a key from available environments.
 
@@ -46,7 +46,7 @@ The ``ConfigGetter`` class
         - The ``<key>`` entry of the ``<section>`` section of each file given in ``config_files``
         - The ``default`` value
 
-    .. method:: getlist(key[, default=''])
+    .. method:: getlist(key[, default=()])
 
         Retrieve a key from available configuration sources, and parse it as a list.
 
@@ -73,12 +73,11 @@ The ``ConfigGetter`` class
         The following values are considered as ``True`` : ``'on'``, ``'yes'``, ``'true'``, ``'1'``.
         Case variations of those values also count as ``True``.
 
-    .. method:: getint(key[, default=False])
+    .. method:: getint(key[, default=0])
 
         Retrieve a key from available configuration sources, and parse it as an integer.
 
-
-    .. method:: getfloat(key[, default=False])
+    .. method:: getfloat(key[, default=0.0])
 
         Retrieve a key from available configuration sources, and parse it as a floating point number.
 
