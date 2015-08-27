@@ -213,14 +213,10 @@ class ConfigGetterTestCase(unittest.TestCase):
         """Test fetching from the default config dict with non-string values."""
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
         getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
-        with self.assertRaises(AssertionError):
-            getter.get('test', False)
-        with self.assertRaises(AssertionError):
-            getter.get('test', 42)
-        with self.assertRaises(AssertionError):
-            getter.get('test', 4.2)
-        with self.assertRaises(AssertionError):
-            getter.get('test', (1, 2))
+        self.assertRaises(AssertionError, lambda: getter.get('test', False))
+        self.assertRaises(AssertionError, lambda: getter.get('test', 42))
+        self.assertRaises(AssertionError, lambda: getter.get('test', 4.2))
+        self.assertRaises(AssertionError, lambda: getter.get('test', (1, )))
 
     def test_getstr_defaults(self):
         """Test fetching from the default config dict."""
@@ -232,14 +228,10 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getstr_defaults_raises(self):
         """Test fetching from the default config dict with non-string values."""
         getter = getconf.ConfigGetter('TESTNS')
-        with self.assertRaises(AssertionError):
-            getter.getstr('test', False)
-        with self.assertRaises(AssertionError):
-            getter.getstr('test', 42)
-        with self.assertRaises(AssertionError):
-            getter.getstr('test', 4.2)
-        with self.assertRaises(AssertionError):
-            getter.getstr('test', (1, 2))
+        self.assertRaises(AssertionError, lambda: getter.getstr('test', False))
+        self.assertRaises(AssertionError, lambda: getter.getstr('test', 42))
+        self.assertRaises(AssertionError, lambda: getter.getstr('test', 4.2))
+        self.assertRaises(AssertionError, lambda: getter.getstr('test', (1, )))
 
     def test_getlist_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -276,12 +268,9 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getlist_defaults_raises(self):
         """Test fetching from the default config dict with non-list or string values."""
         getter = getconf.ConfigGetter('TESTNS')
-        with self.assertRaises(AssertionError):
-            getter.getlist('test', False)
-        with self.assertRaises(AssertionError):
-            getter.getlist('test', 42)
-        with self.assertRaises(AssertionError):
-            getter.getlist('test', 4.2)
+        self.assertRaises(AssertionError, lambda: getter.getlist('test', False))
+        self.assertRaises(AssertionError, lambda: getter.getlist('test', 42))
+        self.assertRaises(AssertionError, lambda: getter.getlist('test', 4.2))
 
     def test_getbool_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -313,12 +302,10 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getbool_defaults_raises(self):
         """Test fetching from the default config dict with non-bool values."""
         getter = getconf.ConfigGetter('TESTNS')
-        with self.assertRaises(AssertionError):
-            getter.getbool('test', 'False')
-        with self.assertRaises(AssertionError):
-            getter.getbool('test', 0)
-        with self.assertRaises(AssertionError):
-            getter.getbool('test', 0.0)
+        self.assertRaises(AssertionError, lambda: getter.getbool('test', 'False'))
+        self.assertRaises(AssertionError, lambda: getter.getbool('test', 42))
+        self.assertRaises(AssertionError, lambda: getter.getbool('test', 4.2))
+        self.assertRaises(AssertionError, lambda: getter.getbool('test', (1, )))
 
     def test_getint_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -335,12 +322,9 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getint_defaults_raises(self):
         """Test fetching from the default config dict with non-int values."""
         getter = getconf.ConfigGetter('TESTNS')
-        with self.assertRaises(AssertionError):
-            getter.getint('test', 'False')
-        with self.assertRaises(AssertionError):
-            getter.getint('test', '0')
-        with self.assertRaises(AssertionError):
-            getter.getint('test', 0.0)
+        self.assertRaises(AssertionError, lambda: getter.getint('test', '42'))
+        self.assertRaises(AssertionError, lambda: getter.getint('test', 4.2))
+        self.assertRaises(AssertionError, lambda: getter.getint('test', (1, )))
 
     def test_getfloat_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -377,12 +361,10 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_getfloat_defaults_raises(self):
         """Test fetching from the default config dict with non-float values."""
         getter = getconf.ConfigGetter('TESTNS')
-        with self.assertRaises(AssertionError):
-            getter.getfloat('test', 'False')
-        with self.assertRaises(AssertionError):
-            getter.getfloat('test', '0.0')
-        with self.assertRaises(AssertionError):
-            getter.getfloat('test', 0)
+        self.assertRaises(AssertionError, lambda: getter.getfloat('test', False))
+        self.assertRaises(AssertionError, lambda: getter.getfloat('test', 42))
+        self.assertRaises(AssertionError, lambda: getter.getfloat('test', '4.2'))
+        self.assertRaises(AssertionError, lambda: getter.getfloat('test', (1, )))
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')
