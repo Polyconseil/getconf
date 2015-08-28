@@ -158,13 +158,17 @@ class ConfigGetter(object):
 
     def get(self, key, default='', doc=''):
         """Compatibility method to retrieve values from various import sources. Soon deprecated."""
-        assert default is None or isinstance(default, compat.text_type)
+        assert (
+            default is None or isinstance(default, compat.text_type)
+        ), 'get("' + key + '", "' + str(default) + '" ) has an invalid default value type !'
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
         return self._get(key, default=default, doc=doc)
 
     def getstr(self, key, default='', doc=''):
         """Retrieve a value as a string."""
-        assert default is None or isinstance(default, compat.text_type)
+        assert (
+            default is None or isinstance(default, compat.text_type)
+        ), 'getstr("' + key + '", "' + str(default) + '" ) has an invalid default value type !'
         return self._get(key, default=default, doc=doc)
 
     def getlist(self, key, default=(), doc='', sep=','):
@@ -175,7 +179,7 @@ class ConfigGetter(object):
         assert (
             isinstance(default, compat.text_type) or
             default is None or isinstance(default, (list, tuple))
-        )
+        ), 'getlist("' + key + '", ' + str(default) + ' ) has an invalid default value type !'
         if isinstance(default, compat.text_type):
             warnings.warn(
                 "Use of a string as default value in getlist() is deprecated. Use lists instead",
@@ -196,7 +200,9 @@ class ConfigGetter(object):
         Accepts the following values as 'True':
             on, yes, true, 1
         """
-        assert default is None or isinstance(default, bool)
+        assert (
+            default is None or isinstance(default, bool)
+        ), 'getbool("' + key + '", ' + str(default) + ' ) has an invalid default value type !'
         value = self._get(key, default=default, doc=doc)
         if value is None:
             return None
@@ -204,7 +210,9 @@ class ConfigGetter(object):
 
     def getint(self, key, default=0, doc=''):
         """Retrieve a value as an integer."""
-        assert default is None or isinstance(default, int)
+        assert (
+            default is None or isinstance(default, int)
+        ), 'getint("' + key + '", ' + str(default) + ' ) has an invalid default value type !'
         value = self._get(key, default=default, doc=doc)
         if value is None:
             return None
@@ -212,7 +220,9 @@ class ConfigGetter(object):
 
     def getfloat(self, key, default=0.0, doc=''):
         """Retrieve a value as a float."""
-        assert default is None or isinstance(default, float)
+        assert (
+            default is None or isinstance(default, float)
+        ), 'getfloat("' + key + '", ' + str(default) + ' ) has an invalid default value type !'
         value = self._get(key, default=default, doc=doc)
         if value is None:
             return None
