@@ -1,6 +1,13 @@
 ChangeLog
 =========
 
+1.4.0 (2015-08-28)
+------------------
+
+*New:*
+
+    * Improve error reporting when raising on wrongly typed defaults
+
 1.4.0 (2015-08-27)
 ------------------
 
