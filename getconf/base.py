@@ -221,7 +221,7 @@ class ConfigGetter(object):
     def getfloat(self, key, default=0.0, doc=''):
         """Retrieve a value as a float."""
         assert (
-            default is None or isinstance(default, float)
+            default is None or isinstance(default, (int, float))
         ), 'getfloat("' + key + '", ' + str(default) + ' ) has an invalid default value type !'
         value = self._get(key, default=default, doc=doc)
         if value is None:
