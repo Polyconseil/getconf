@@ -9,7 +9,7 @@ Next version
     * Better AssertionError messages when default values have the wrong type.
 
 
-1.4.0 (2015-08-28)
+1.4.1 (2015-08-28)
 ------------------
 
 *New:*
