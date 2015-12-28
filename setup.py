@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Copyright (c) 2010-2015 Polyconseil SAS
+# Copyright (c) Polyconseil SAS
 # This software is distributed under the two-clause BSD license.
 from __future__ import unicode_literals
 import io
