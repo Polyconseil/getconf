@@ -36,11 +36,6 @@ def get_long_description(filename):
     return text
 
 
-def get_requirements(filename):
-    with io.open(filename, 'r', encoding='utf-8') as f:
-        return f.readlines()
-
-
 PACKAGE = 'getconf'
 
 setup(
@@ -56,7 +51,7 @@ setup(
     download_url="https://pypi.python.org/pypi/%s/" % PACKAGE,
     packages=find_packages(exclude=['tests']),
     platforms=["OS Independent"],
-    install_requires=get_requirements('requirements.txt'),
+    install_requires=[],
     setup_requires=[
         'setuptools>=0.8',
     ],

@@ -1,5 +1,4 @@
 include ChangeLog
-include requirements.txt
 include requirements_dev.txt
 include README.rst
 
@@ -7,6 +6,8 @@ graft getconf
 graft docs
 
 prune tests
+
+global-exclude *.py[cod] __pycache__
 
 # Be explicit to make check-manifest happy.
 exclude .pylintrc
