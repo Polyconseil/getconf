@@ -102,8 +102,8 @@ With the following setup:
     import getconf
     config = getconf.ConfigGetter('getconf', ['/etc/getconf/example.ini'])
 
-    print("Env: %s" % config.get('env', 'dev'))
-    print("DB: %s" % config.get('db.host', 'localhost'))
+    print("Env: %s" % config.getstr('env', 'dev'))
+    print("DB: %s" % config.getstr('db.host', 'localhost'))
     print("Debug: %s" % config.getbool('dev.debug', False))
 
 .. code-block:: ini
