@@ -37,7 +37,7 @@ Defaults
 The default value may be provided in three different ways:
 
 Upon access
-    Use the ``default`` parameter of getters: ``config.get('db.host', default='localhost')``
+    Use the ``default`` parameter of getters: ``config.getstr('db.host', default='localhost')``
 
     This is pretty handy when all configuration values are read once and stored in another object.
     However, if the ``ConfigGetter`` object is the reference "configuration-holder" object, repeating
@@ -53,7 +53,7 @@ Using a ``defaults`` directory
         import getconf
         config = getconf.ConfigGetter('myproj', ['~/.myproj.ini', '/etc/myproj.ini'], defaults={'logging': {'target': 'stderr'}})
 
-    With the above setup, ``config.get('logging.target')`` will be set to ``'stderr'`` if no value is provided through
+    With the above setup, ``config.getstr('logging.target')`` will be set to ``'stderr'`` if no value is provided through
     the environment nor the configuration files.
 
 
@@ -121,7 +121,7 @@ When reading configuration from multiple sources, it can be complex to determine
 
 - Environment variables **ALWAYS** override other sources
 - Configuration files are parsed in the order they are declared (last declaration wins)
-- global defaults (in ``ConfigGetter(defaults={})``) come before calling-defaults (in ``config.get('x.y', default='blah')``), which come last.
+- global defaults (in ``ConfigGetter(defaults={})``) come before calling-defaults (in ``config.getstr('x.y', default='blah')``), which come last.
 
 Two special cases need to be handled:
 
@@ -168,8 +168,8 @@ And this ``ConfigGetter`` setup:
 
 Then:
 
-- ``config.get('db.host')`` is read from ``MYPROJ_DB_HOST=localhost``
-- ``config.get('db.name', 'foo')`` looks, in turn:
+- ``config.getstr('db.host')`` is read from ``MYPROJ_DB_HOST=localhost``
+- ``config.getstr('db.name', 'foo')`` looks, in turn:
 
   - At ``/etc/myproj.local/20_passwords.ini``'s ``[db] name =``
   - At ``/etc/myproj.local/15_logging.ini``'s ``[db] name =``
@@ -178,7 +178,7 @@ Then:
   - At ``/etc/myproj.conf``'s ``[db] name =``
   - Defaults to ``foo``
 
-- ``config.get('db.port', '1234')`` looks, in turn:
+- ``config.getstr('db.port', '1234')`` looks, in turn:
 
   - At ``/etc/myproj.local/20_passwords.ini``'s ``[db] port =``
   - At ``/etc/myproj.local/15_logging.ini``'s ``[db] port =``
