@@ -423,6 +423,35 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_SECTION1_FOO='blah'):
             self.assertEqual('blah', getter.getstr('section1.foo'))
 
+    def test_iter(self):
+        getter = getconf.ConfigGetter(
+            'TESTNS',
+            [self.example_path],
+            defaults={'DEFAULT': {"test": '54'}, 'section1': {'foo': '72'}}
+        )
+        env = {
+            'TESTNS_SECTION1_BAR': 'blah',
+            'TESTNS_BUU': '421',
+            'TESTNS_SECTION2_BOO': '422',
+            'TESTNS_SECTION_WITH_UNDERSCORE_ENV_OPTION': '422',
+        }
+        with Environ(**env):
+            self.assertEqual(
+                sorted(getter),
+                sorted([
+                    'buu',
+                    'bar',
+                    'test',
+                    'section1.foo',
+                    'section1.otherfoo',
+                    'section1.bar',
+                    'encoding.noascii',
+                    'section2.boo',
+
+                    'section_with_underscore.option_with_underscore',
+                    'section_with_underscore.env_option',
+                ])
+            )
 
 if __name__ == '__main__':
     unittest.main()

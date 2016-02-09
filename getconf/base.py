@@ -240,6 +240,90 @@ class ConfigGetter(object):
         """
         return sorted(self.seen_keys)
 
+    def __iter__(self):
+        """
+        Iter over keys
+
+        Warning:
+            Section that are not declared in defaults or config files are only
+            detected in environment if they do not have an underscore in their
+            names. Default section keys are only detected if their names do not
+            contain underscore.
+
+            For example, 'NS_SECTION_KEY' is detected as 'section.key' but
+            'NS_SEC_TION_KEY' is detected as 'sec.tion_key' unless 'sec_tion' is
+            declared in defaults or config files.
+
+        Returns:
+            list of keys ('<section>.<key>')
+        """
+        no_env_sections = (
+            set(['DEFAULT'])
+            .union(set(self.defaults.keys()))
+            .union(set(self.parser.sections()))
+        )
+
+        excluded_env_prefix = [  # Drop known prefix to avoid bad detection (e.g. "NS_SEC_TION_KEY")
+            '{0}_{1}_'.format(self.namespace, section).upper()
+            for section in no_env_sections
+        ]
+
+        env_sections = [
+            key.split('_')[1].lower()
+            for key in os.environ
+            if (
+                key.startswith('{0}_'.format(self.namespace.upper())) and
+                not any(key.startswith(prefix) for prefix in excluded_env_prefix) and
+                key.count('_') > 1  # only one underscore => DEFAULT section
+            )
+        ]
+
+        sections = no_env_sections.union(set(env_sections))
+        for section in sections:
+            for key in self.list_section_keys(section):
+                key = '{0}.{1}'.format(section, key) if section != 'DEFAULT' else key
+                yield key
+
+    def list_section_keys(self, section):
+        """
+        List keys that are in one section
+
+        Args:
+            section (str): Name of the section
+
+        Returns:
+            list of keys (without the section name)
+        """
+        if section == 'DEFAULT':
+            section_env_prefix = '{0}_'.format(self.namespace).upper()
+            parser_section_keys = self.parser.defaults().keys()
+        else:
+            section_env_prefix = '{0}_{1}_'.format(self.namespace, section).upper()
+            parser_section_keys = [
+                # ConfigParser add __name__ and [DEFAULT] keys to all sections
+                x
+                for x in self.parser._sections.get(section, {}).keys()
+                if x != '__name__'
+            ]
+
+        section_env_keys = [
+            key[len(section_env_prefix):].lower()
+            for key in os.environ
+            if key.startswith(section_env_prefix) and (
+                # Do not detect default section keys with underscore in their names
+                # to avoid collision with other sections.
+                section != 'DEFAULT' or '_' not in key[len(section_env_prefix):]
+            )
+        ]
+
+        keys = (
+            set(parser_section_keys)
+            .union(set(self.defaults.get(section, {}).keys()))
+            .union(set(section_env_keys))
+        )
+
+        return keys
+
 
 class ConfigSectionGetter(object):
     """Proxy around a section."""
