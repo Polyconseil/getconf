@@ -5,5 +5,5 @@ python:
   - "3.3"
   - "3.4"
   - "3.5"
-install: make update
-script: make test
+install: pip install -r requirements_dev.txt
+script: nosetests
