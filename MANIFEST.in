@@ -7,7 +7,7 @@ graft docs
 
 prune tests
 
-global-exclude *.py[cod] __pycache__
+global-exclude *.py[cod] __pycache__ *.so .*.swp *~
 
 # Be explicit to make check-manifest happy.
 exclude .pylintrc
