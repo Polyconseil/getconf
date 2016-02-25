@@ -23,7 +23,46 @@ else:
     logger.addHandler(compat.NullHandler())
 
 
-ConfigKey = collections.namedtuple('ConfigKey', ['section', 'entry', 'envvar', 'doc'])
+_ConfigKey = collections.namedtuple(
+    'ConfigKey',
+    ['section', 'entry', 'envvar', 'doc', 'default', 'type_hint']
+)
+
+
+class ConfigKey(_ConfigKey):
+
+    def __hash__(self):
+        if self.type_hint == 'list' and self.default is not None:
+            # Make sure we can hash default
+            default = tuple(self.default)
+        else:
+            default = self.default
+        return hash((self.section, self.entry, self.envvar, self.doc, default, self.type_hint))
+
+    def as_ini_entry(self):
+        """Format as a commented entry in INI format (section is omitted)
+
+        ; type=str - The provided documentation
+        ;entry = default_value
+        """
+        # Remove any new line in self.doc
+        one_line_doc = ' '.join(self.doc.split())
+        doc_part = (' - %s' % one_line_doc) if one_line_doc else ''
+
+        if self.type_hint == 'list':
+            default = ', '.join(self.default)
+        elif self.type_hint == 'bool':
+            default = 'on' if self.default else 'off'
+        else:
+            default = str(self.default)
+        default_str = ' %s' % default if default else ''
+        return '; {envvar} - type={type_hint}{doc_part}\n;{entry} ={default_str}'.format(
+            envvar=self.envvar,
+            type_hint=self.type_hint,
+            doc_part=doc_part,
+            entry=self.entry,
+            default_str=default_str,
+        )
 
 
 class NotFound(KeyError):
@@ -145,7 +184,7 @@ class ConfigGetter(object):
 
         return default
 
-    def _get(self, key, default, doc):
+    def _get(self, key, default, doc, type_hint=''):
         if '.' in key:
             section, key = key.split('.', 1)
         else:
@@ -153,7 +192,10 @@ class ConfigGetter(object):
         env_key = self._env_key(key, section=section)
         config_section = section or 'DEFAULT'
         value = self._read(env_key=env_key, section=config_section, key=key, default=default)
-        self.seen_keys.add(ConfigKey(section=config_section, entry=key, envvar=env_key, doc=doc))
+        self.seen_keys.add(
+            ConfigKey(section=config_section, entry=key, envvar=env_key,
+                      doc=doc, default=default, type_hint=type_hint)
+        )
         return value
 
     def get(self, key, default='', doc=''):
@@ -169,7 +211,7 @@ class ConfigGetter(object):
         assert (
             default is None or isinstance(default, compat.text_type)
         ), 'getstr("%s", %s) has an invalid default value type.' % (key, repr(default))
-        return self._get(key, default=default, doc=doc)
+        return self._get(key, default=default, doc=doc, type_hint='str')
 
     def getlist(self, key, default=(), doc='', sep=','):
         """Retrieve a value as a list.
@@ -185,7 +227,7 @@ class ConfigGetter(object):
                 "Use of a string as default value in getlist() is deprecated. Use lists instead",
                 DeprecationWarning
             )
-        value = self._get(key, default=default, doc=doc)
+        value = self._get(key, default=default, doc=doc, type_hint='list')
         if isinstance(value, compat.text_type):
             values = [entry.strip() for entry in value.split(sep)]
             values = [entry for entry in values if entry]
@@ -203,7 +245,7 @@ class ConfigGetter(object):
         assert (
             default is None or isinstance(default, bool)
         ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc)
+        value = self._get(key, default=default, doc=doc, type_hint='bool')
         if value is None:
             return None
         return compat.text_type(value).lower() in ('on', 'true', 'yes', '1')
@@ -213,7 +255,7 @@ class ConfigGetter(object):
         assert (
             default is None or isinstance(default, int)
         ), 'getint("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc)
+        value = self._get(key, default=default, doc=doc, type_hint='int')
         if value is None:
             return None
         return int(value)
@@ -223,7 +265,7 @@ class ConfigGetter(object):
         assert (
             default is None or isinstance(default, float)
         ), 'getfloat("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc)
+        value = self._get(key, default=default, doc=doc, type_hint='float')
         if value is None:
             return None
         return float(value)
@@ -239,6 +281,22 @@ class ConfigGetter(object):
             list of ConfigKey (section, entry, envvar tuple)
         """
         return sorted(self.seen_keys)
+
+    def get_ini_template(self):
+        """Export commented INI file content mapping to the defaults"""
+        section_to_keys = collections.defaultdict(list)
+        for key in self.seen_keys:
+            section_to_keys[key.section].append(key)
+
+        parts = []
+        for section, keys in sorted(section_to_keys.items()):
+            parts.append('[%s]' % section)
+            for config_key in sorted(keys, key=lambda k: k.entry):
+                parts.append(config_key.as_ini_entry())
+            # Add a newline between sections
+            parts.append('')
+        # But drop last newline
+        return '\n'.join(parts[:-1])
 
 
 class ConfigSectionGetter(object):

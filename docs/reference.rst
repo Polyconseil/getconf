@@ -90,6 +90,31 @@ The ``ConfigGetter`` class
         .. note:: The returned object only supports the ``__getitem__`` side of dicts
                   (e.g. ``section_config['foo']`` will work, ``'foo' in section_config`` won't)
 
+    .. method:: get_ini_template()
+
+        Return INI like commented content equivalent to the default values.
+
+        For example:
+
+        .. code-block:: pycon
+
+            >>> getter.getlist('section.bar', default=['a', 'b'])
+            ['a', 'b']
+            >>> getter.getbool('foo', default=True, doc="Set foo to True to enable the Truth")
+            True
+            >>> print(g.get_ini_template())
+            [DEFAULT]
+            ; NAMESPACE_FOO - type=bool - Set foo to True to enable the Truth
+            ;foo = on
+
+            [section]
+            ; NAMESPACE_SECTION_BAR - type=list
+            ;bar = a, b
+
+        .. note:: This template is generated based on the `getxxxx` calls performed on the
+                  ConfigGetter. If some calls are optional, the corresponding options might
+                  not be present in the `get_ini_template` return value.
+
 
 Example
 -------

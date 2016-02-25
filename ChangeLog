@@ -7,6 +7,7 @@ Next version
 *New:*
 
     * Better AssertionError messages when default values have the wrong type.
+    * Add ConfigGetter.get_ini_template() method
 
 
 1.4.1 (2015-08-28)

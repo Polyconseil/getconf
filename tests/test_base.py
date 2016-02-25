@@ -7,6 +7,7 @@ from __future__ import unicode_literals
 
 import os
 import sys
+import tempfile
 import unittest
 import warnings
 
@@ -422,6 +423,51 @@ class ConfigGetterTestCase(unittest.TestCase):
         getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}, 'section1':{'foo': '72'}})
         with Environ(TESTNS_SECTION1_FOO='blah'):
             self.assertEqual('blah', getter.getstr('section1.foo'))
+
+    def test_config_to_INI(self):
+        getter = getconf.ConfigGetter('TESTNS')
+        getter.getstr('foo', default='bar', doc='Foo\nbar')
+        getter.getlist('section2.foo', default=['first', 'second'])
+        getter.getlist('section2.bar', default=[], doc='Emptylist')
+        getter.getbool('section3.bar', default=True, doc='Important bool value')
+
+        self.assertEqual(getter.get_ini_template(), """\
+[DEFAULT]
+; TESTNS_FOO - type=str - Foo bar
+;foo = bar
+
+[section2]
+; TESTNS_SECTION2_BAR - type=list - Emptylist
+;bar =
+; TESTNS_SECTION2_FOO - type=list
+;foo = first, second
+
+[section3]
+; TESTNS_SECTION3_BAR - type=bool - Important bool value
+;bar = on""")
+
+    def test_reload_uncommented_template(self):
+        getter = getconf.ConfigGetter('TESTNS')
+        getter.getstr('foo', default='foo bar', doc='Foo\nbar')
+        getter.getlist('section2.some_list', default=['first', 'second'])
+        getter.getlist('section2.empty_list', default=[], doc='Emptylist')
+        getter.getbool('section3.true_bool', default=True, doc='Important bool value')
+        content = getter.get_ini_template()
+        with tempfile.NamedTemporaryFile('wt', delete=False) as f:
+            for line in content.splitlines():
+                if line.startswith(';') and not line.startswith('; '):
+                    # Only uncomment entries, not comment
+                    line = line[1:]
+                f.write(line + '\n')
+
+        other_getter = getconf.ConfigGetter('TESTNS', config_files=(f.name,))
+        try:
+            self.assertEqual('foo bar', other_getter.getstr('foo'))
+            self.assertEqual(['first', 'second'], other_getter.getlist('section2.some_list'))
+            self.assertEqual([], other_getter.getlist('section2.empty_list'))
+            self.assertTrue(other_getter.getlist('section3.true_bool'))
+        finally:
+            os.unlink(f.name)
 
 
 if __name__ == '__main__':
