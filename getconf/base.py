@@ -137,12 +137,14 @@ class ConfigGetter(object):
             self.found_files, self.search_files,
         )
 
-    def _env_key(self, key, section=''):
+    def _env_key(self, key, section='', namespaced=True):
+        env_key = ()
+        if namespaced:
+            env_key += (self.namespace,)
         if section:
-            args = (self.namespace, section, key)
-        else:
-            args = (self.namespace, key)
-        return '_'.join(arg.upper() for arg in args)
+            env_key += (section,)
+        env_key += (key,)
+        return '_'.join(arg.upper() for arg in env_key)
 
     def _read_env(self, key):
         """Handle environ-related logic."""
@@ -184,12 +186,12 @@ class ConfigGetter(object):
 
         return default
 
-    def _get(self, key, default, doc, type_hint=''):
+    def _get(self, key, default, doc, type_hint='', namespaced=True):
         if '.' in key:
             section, key = key.split('.', 1)
         else:
             section = ''
-        env_key = self._env_key(key, section=section)
+        env_key = self._env_key(key, section=section, namespaced=namespaced)
         config_section = section or 'DEFAULT'
         value = self._read(env_key=env_key, section=config_section, key=key, default=default)
         self.seen_keys.add(
@@ -198,22 +200,22 @@ class ConfigGetter(object):
         )
         return value
 
-    def get(self, key, default='', doc=''):
+    def get(self, key, default='', doc='', namespaced=True):
         """Compatibility method to retrieve values from various import sources. Soon deprecated."""
         assert (
             default is None or isinstance(default, compat.text_type)
         ), 'get("%s", %s) has an invalid default value type.' % (key, repr(default))
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
-        return self._get(key, default=default, doc=doc)
+        return self._get(key, default=default, doc=doc, namespaced=namespaced)
 
-    def getstr(self, key, default='', doc=''):
+    def getstr(self, key, default='', doc='', namespaced=True):
         """Retrieve a value as a string."""
         assert (
             default is None or isinstance(default, compat.text_type)
         ), 'getstr("%s", %s) has an invalid default value type.' % (key, repr(default))
-        return self._get(key, default=default, doc=doc, type_hint='str')
+        return self._get(key, default=default, doc=doc, type_hint='str', namespaced=namespaced)
 
-    def getlist(self, key, default=(), doc='', sep=','):
+    def getlist(self, key, default=(), doc='', sep=',', namespaced=True):
         """Retrieve a value as a list.
 
         Splits on ',', strips entries and returns only non-empty values.
@@ -227,7 +229,7 @@ class ConfigGetter(object):
                 "Use of a string as default value in getlist() is deprecated. Use lists instead",
                 DeprecationWarning
             )
-        value = self._get(key, default=default, doc=doc, type_hint='list')
+        value = self._get(key, default=default, doc=doc, type_hint='list', namespaced=namespaced)
         if isinstance(value, compat.text_type):
             values = [entry.strip() for entry in value.split(sep)]
             values = [entry for entry in values if entry]
@@ -236,7 +238,7 @@ class ConfigGetter(object):
             return None
         return list(value)
 
-    def getbool(self, key, default=False, doc=''):
+    def getbool(self, key, default=False, doc='', namespaced=True):
         """Retrieve a value as a boolean.
 
         Accepts the following values as 'True':
@@ -245,27 +247,27 @@ class ConfigGetter(object):
         assert (
             default is None or isinstance(default, bool)
         ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc, type_hint='bool')
+        value = self._get(key, default=default, doc=doc, type_hint='bool', namespaced=namespaced)
         if value is None:
             return None
         return compat.text_type(value).lower() in ('on', 'true', 'yes', '1')
 
-    def getint(self, key, default=0, doc=''):
+    def getint(self, key, default=0, doc='', namespaced=True):
         """Retrieve a value as an integer."""
         assert (
             default is None or isinstance(default, int)
         ), 'getint("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc, type_hint='int')
+        value = self._get(key, default=default, doc=doc, type_hint='int', namespaced=namespaced)
         if value is None:
             return None
         return int(value)
 
-    def getfloat(self, key, default=0.0, doc=''):
+    def getfloat(self, key, default=0.0, doc='', namespaced=True):
         """Retrieve a value as a float."""
         assert (
             default is None or isinstance(default, float)
         ), 'getfloat("%s", %s) has an invalid default value type.' % (key, repr(default))
-        value = self._get(key, default=default, doc=doc, type_hint='float')
+        value = self._get(key, default=default, doc=doc, type_hint='float', namespaced=namespaced)
         if value is None:
             return None
         return float(value)
