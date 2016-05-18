@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+*New:*
+
+    * All getXXX calls now accept a ``namespaced=False`` argument for project-independent environment keys.
+
+
 1.5.0 (2016-05-11)
 ------------------
 

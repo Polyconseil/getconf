@@ -27,12 +27,13 @@ The ``ConfigGetter`` class
     :param dict defaults: Dictionary of defaults values that are fetch with the lowest priority.
                           The value for 'section.key' will be looked up at ``defaults['section']['key']``.
 
-    .. method:: getstr(key[, default=''])
+    .. method:: getstr(key[, default='', namespaced=True])
 
         Retrieve a key from available environments.
 
         :param str key: The name of the field to use.
         :param str default: The default value (string) for the field; optional
+        :param str namespaced: If the globally defined namespace must be used for this key; optional
 
         .. note:: The ``key`` param accepts two formats:
 
@@ -41,12 +42,15 @@ The ``ConfigGetter`` class
 
         This looks, in order, at:
 
-        - ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set, ``<NAMESPACE>_<KEY>`` otherwise
+        - ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set and ``namespaced`` is ``True``
+        - ``<NAMESPACE>_<KEY>`` if just ``namespaced`` is ``True``
+        - ``<SECTION>_<KEY>`` if just ``section`` is set
+        - ``<KEY>`` if neither ``section`` nor ``namespaced`` are set
         - The ``<key>`` entry of the ``<section>`` section of the file given in ``<NAMESPACE>_CONFIG``
         - The ``<key>`` entry of the ``<section>`` section of each file given in ``config_files``
         - The ``default`` value
 
-    .. method:: getlist(key[, default=()])
+    .. method:: getlist(key[, default=(), namespaced=True])
 
         Retrieve a key from available configuration sources, and parse it as a list.
 
@@ -66,18 +70,18 @@ The ``ConfigGetter`` class
             >>> getter.getlist('b')
             ['foo', 'bar', 'baz']
 
-    .. method:: getbool(key[, default=False])
+    .. method:: getbool(key[, default=False, namespaced=True])
 
         Retrieve a key from available configuration sources, and parse it as a boolean.
 
         The following values are considered as ``True`` : ``'on'``, ``'yes'``, ``'true'``, ``'1'``.
         Case variations of those values also count as ``True``.
 
-    .. method:: getint(key[, default=0])
+    .. method:: getint(key[, default=0, namespaced=True])
 
         Retrieve a key from available configuration sources, and parse it as an integer.
 
-    .. method:: getfloat(key[, default=0.0])
+    .. method:: getfloat(key[, default=0.0, namespaced=True])
 
         Retrieve a key from available configuration sources, and parse it as a floating point number.
 

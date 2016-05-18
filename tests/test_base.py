@@ -234,6 +234,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getstr('test', 4.2))
         self.assertRaises(AssertionError, lambda: getter.getstr('test', (1, )))
 
+    def test_getstr_no_namespace(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(FOO='bar'):
+            self.assertEqual('bar', getter.getstr('foo', namespaced=False))
+
     def test_getlist_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
         with Environ(TESTNS_FOO='  ,  ,,,,  '):
@@ -273,6 +278,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getlist('test', 42))
         self.assertRaises(AssertionError, lambda: getter.getlist('test', 4.2))
 
+    def test_getlist_no_namespace(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(FOO='bar,baz'):
+            self.assertEqual(['bar', 'baz'], getter.getlist('foo', namespaced=False))
+
     def test_getbool_empty(self):
         getter = getconf.ConfigGetter('TESTNS', [])
         with Environ(TESTNS_FOO=''):
@@ -308,6 +318,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getbool('test', 4.2))
         self.assertRaises(AssertionError, lambda: getter.getbool('test', (1, )))
 
+    def test_getbool_no_namespace(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(FOO='true'):
+            self.assertTrue(getter.getbool('foo', namespaced=False))
+
     def test_getint_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
         with Environ(TESTNS_FOO='14'):
@@ -326,6 +341,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getint('test', '42'))
         self.assertRaises(AssertionError, lambda: getter.getint('test', 4.2))
         self.assertRaises(AssertionError, lambda: getter.getint('test', (1, )))
+
+    def test_getint_no_namespace(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(FOO='34'):
+            self.assertEqual(34, getter.getint('foo', namespaced=False))
 
     def test_getfloat_value(self):
         getter = getconf.ConfigGetter('TESTNS', [])
@@ -366,6 +386,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', 42))
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', '4.2'))
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', (1, )))
+
+    def test_getfloat_no_namespace(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(FOO='34.2'):
+            self.assertEqual(34.2, getter.getfloat('foo', namespaced=False))
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')
