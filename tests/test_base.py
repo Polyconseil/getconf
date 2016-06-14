@@ -194,11 +194,18 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_get_defaults_dict(self):
         """Test fetching from the default config dict with non-string values."""
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
+        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT': {"test": '54', 'wrong': 'bad'}})
         self.assertEqual('54', getter.get('test'))
         self.assertEqual('54', getter.getstr('test'))
         self.assertEqual(54, getter.getint('test'))
+
+        # Ugly test compatible with Python 2.6...
+        self.assertRaises(ValueError, getter.getint, 'wrong')
+
         self.assertEqual(54.0, getter.getfloat('test'))
+        # Ugly test compatible with Python 2.6...
+        self.assertRaises(ValueError, getter.getfloat, 'wrong')
+
         self.assertEqual(False, getter.getbool('test'))
         self.assertEqual(['54', ], getter.getlist('test'))
 
@@ -213,7 +220,7 @@ class ConfigGetterTestCase(unittest.TestCase):
     def test_get_defaults_raises(self):
         """Test fetching from the default config dict with non-string values."""
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
-        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT':{"test":'54'}})
+        getter = getconf.ConfigGetter('TESTNS', defaults={'DEFAULT': {"test": '54'}})
         self.assertRaises(AssertionError, lambda: getter.get('test', False))
         self.assertRaises(AssertionError, lambda: getter.get('test', 42))
         self.assertRaises(AssertionError, lambda: getter.get('test', 4.2))
