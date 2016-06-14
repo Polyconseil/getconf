@@ -258,7 +258,11 @@ class ConfigGetter(object):
         value = self._get(key, default=default, doc=doc, type_hint='int')
         if value is None:
             return None
-        return int(value)
+        try:
+            return int(value)
+        except ValueError:
+            logger.exception("Unable to cast %s as integer for the key %s.", repr(value), key)
+            raise
 
     def getfloat(self, key, default=0.0, doc=''):
         """Retrieve a value as a float."""
@@ -268,7 +272,11 @@ class ConfigGetter(object):
         value = self._get(key, default=default, doc=doc, type_hint='float')
         if value is None:
             return None
-        return float(value)
+        try:
+            return float(value)
+        except ValueError:
+            logger.exception("Unable to cast %s as float for the key %s.", repr(value), key)
+            raise
 
     def get_section(self, section_name):
         """Return a dict-like object for the chosen section."""
