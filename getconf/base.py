@@ -17,10 +17,7 @@ from .compat import configparser
 logger = logging.getLogger(__name__)
 
 # Avoid issue with 'no handler found for...' when called before logging setup.
-if os.environ.get('LOG_TO_STDERR', '0') == 1:
-    logger.addHandler(logging.StreamHandler())
-else:
-    logger.addHandler(compat.NullHandler())
+logger.addHandler(compat.NullHandler())
 
 
 _ConfigKey = collections.namedtuple(
