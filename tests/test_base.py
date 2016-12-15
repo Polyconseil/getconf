@@ -199,12 +199,12 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual('54', getter.getstr('test'))
         self.assertEqual(54, getter.getint('test'))
 
-        # Ugly test compatible with Python 2.6...
-        self.assertRaises(ValueError, getter.getint, 'wrong')
+        with self.assertRaises(ValueError):
+            getter.getint('wrong')
 
         self.assertEqual(54.0, getter.getfloat('test'))
-        # Ugly test compatible with Python 2.6...
-        self.assertRaises(ValueError, getter.getfloat, 'wrong')
+        with self.assertRaises(ValueError):
+            getter.getfloat('wrong')
 
         self.assertEqual(False, getter.getbool('test'))
         self.assertEqual(['54', ], getter.getlist('test'))
