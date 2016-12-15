@@ -21,7 +21,8 @@ respecting the standard procedures in each system:
 * Use standard configuration space in ``/etc`` on traditional production servers
 * Handle environment-based configuration for cloud-based platforms
 
-``getconf`` supports Python 2.6, 2.7, 3.3, 3.4 and is distributed under the two-clause BSD license.
+``getconf`` v1.5 supports Python 2.6, 2.7, 3.3, 3.4 and is distributed under the two-clause BSD license.
+``getconf`` v1.6 onwards will only support Python 2.7+.
 
 Links
 -----
