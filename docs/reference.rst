@@ -81,6 +81,10 @@ The ``ConfigGetter`` class
 
         Retrieve a key from available configuration sources, and parse it as a floating point number.
 
+    .. method:: gettimedelta(key[, default='0d'])
+
+        Retrieve a key from available configuration sources, and parse it as a datetime.timedelta object.
+
     .. method:: get_section(section_name)
 
         Retrieve a dict-like proxy over a configuration section.

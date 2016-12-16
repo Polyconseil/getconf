@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import collections
+import datetime
 import glob
 import logging
 import warnings
@@ -274,6 +275,31 @@ class ConfigGetter(object):
         except ValueError:
             logger.exception("Unable to cast %s as float for the key %s.", repr(value), key)
             raise
+
+    def gettimedelta(self, key, default='0d', doc=''):
+        """Retrieve a value as a datetime.timedelta."""
+        assert (
+            default is None or isinstance(default, compat.text_type)
+        ), 'gettimedelta("%s", %s) has an invalid default value type.' % (key, repr(default))
+        value = self._get(key, default=default, doc=doc, type_hint='timedelta')
+        if value is None:
+            return None
+
+        conversion = {'d': 'days', 'h': 'hours', 'm': 'minutes', 's': 'seconds'}
+        value, unit = value[:-1], value[-1:]
+        try:
+            value = float(value)
+            unit = conversion[unit]
+        except ValueError:
+            logger.exception("Unable to cast %s as float for the key %s.", repr(value), key)
+            raise
+        except KeyError:
+            fmt = "%r is not a valid unit for the key %s (acceptable values are %s)."
+            args = (unit, key, ', '.join(conversion.keys()))
+            logger.exception(fmt, *args)
+            raise ValueError(fmt % args)
+        else:
+            return datetime.timedelta(**{unit: value})
 
     def get_section(self, section_name):
         """Return a dict-like object for the chosen section."""

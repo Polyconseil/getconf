@@ -1,6 +1,12 @@
 ChangeLog
 =========
 
+*New:*
+
+    * Add a new gettimedelta function to parse simple durations expressed as
+      strings (10 days as '10d', 3 hours as '3h', etc.)
+
+
 1.5.1 (2016-12-15)
 ------------------
 

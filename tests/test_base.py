@@ -5,6 +5,7 @@
 
 from __future__ import unicode_literals
 
+import datetime
 import os
 import sys
 import tempfile
@@ -373,6 +374,63 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', 42))
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', '4.2'))
         self.assertRaises(AssertionError, lambda: getter.getfloat('test', (1, )))
+
+    def test_gettimedelta_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='42d'):
+            value = getter.gettimedelta('foo')
+            self.assertEqual(value, datetime.timedelta(days=42))
+
+        with Environ(TESTNS_FOO='42h'):
+            value = getter.gettimedelta('foo')
+            self.assertEqual(value, datetime.timedelta(hours=42))
+
+        with Environ(TESTNS_FOO='42m'):
+            value = getter.gettimedelta('foo')
+            self.assertEqual(value, datetime.timedelta(minutes=42))
+
+        with Environ(TESTNS_FOO='42s'):
+            value = getter.gettimedelta('foo')
+            self.assertEqual(value, datetime.timedelta(seconds=42))
+
+        with Environ(TESTNS_FOO='0.5s'):
+            value = getter.gettimedelta('foo')
+            self.assertEqual(value, datetime.timedelta(seconds=0.5))
+
+    def test_gettimedelta_empty_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO=''):
+            self.assertRaises(ValueError, getter.gettimedelta, 'foo')
+
+    def test_gettimedelta_bad_value(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='ad'):
+            self.assertRaises(ValueError, getter.gettimedelta, 'foo')
+
+    def test_gettimedelta_bad_duration(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='42f'):
+            self.assertRaises(ValueError, getter.gettimedelta, 'foo')
+
+    def test_gettimedelta_multiple_durations(self):
+        getter = getconf.ConfigGetter('TESTNS', [])
+        with Environ(TESTNS_FOO='1d2h'):
+            self.assertRaises(ValueError, getter.gettimedelta, 'foo')
+
+    def test_gettimedelta_defaults(self):
+        """Test fetching the default in every possible way"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual(datetime.timedelta(), getter.gettimedelta('test'))
+        self.assertEqual(datetime.timedelta(days=100), getter.gettimedelta('foo', '100d'))
+        self.assertIsNone(getter.gettimedelta('test', None))
+
+    def test_gettimedelta_defaults_raises(self):
+        """Test fetching from the default config dict with non-str values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertRaises(AssertionError, getter.gettimedelta, 'test', False)
+        self.assertRaises(AssertionError, getter.gettimedelta, 'test', 42)
+        self.assertRaises(AssertionError, getter.gettimedelta, 'test', 4.2)
+        self.assertRaises(AssertionError, getter.gettimedelta, 'test', (1, ))
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')
