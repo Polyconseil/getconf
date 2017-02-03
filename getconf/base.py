@@ -8,8 +8,8 @@ import collections
 import datetime
 import glob
 import logging
-import warnings
 import os
+import warnings
 
 from . import compat
 from .compat import configparser
@@ -98,7 +98,7 @@ class ConfigGetter(object):
     """
 
     def __init__(self, namespace, config_files=(), defaults=None):
-        self.parser = configparser.ConfigParser()
+        self.parser = compat.get_no_interpolation_config_parser()
         self.seen_keys = set()
 
         self.namespace = namespace
