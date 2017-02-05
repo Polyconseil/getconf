@@ -1,6 +1,25 @@
 getconf
 =======
 
+.. image:: https://secure.travis-ci.org/Polyconseil/getconf.png?branch=master
+    :target: http://travis-ci.org/Polyconseil/getconf/
+
+.. image:: https://img.shields.io/pypi/v/getconf.svg
+    :target: https://getconf.readthedocs.io/en/latest/changelog.html
+    :alt: Latest Version
+
+.. image:: https://img.shields.io/pypi/pyversions/getconf.svg
+    :target: https://pypi.python.org/pypi/getconf/
+    :alt: Supported Python versions
+
+.. image:: https://img.shields.io/pypi/wheel/getconf.svg
+    :target: https://pypi.python.org/pypi/getconf/
+    :alt: Wheel status
+
+.. image:: https://img.shields.io/pypi/l/getconf.svg
+    :target: https://pypi.python.org/pypi/getconf/
+    :alt: License
+
 The ``getconf`` project provides simple configuration helpers for Python programs.
 
 It provides a simple API to read from various configuration files and environment variables:
