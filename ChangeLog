@@ -4,6 +4,15 @@ ChangeLog
 Next version
 ------------
 
+1.7.0 (master)
+--------------
+
+*New:*
+
+    * Allow using an empty namespace
+      (``ConfigGetter(namespace=getconf.NO_NAMESPACE``) to load unprefixed
+      environment variables.
+
 1.6.0 (2017-02-03)
 ------------------
 

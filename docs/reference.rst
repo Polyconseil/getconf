@@ -14,6 +14,7 @@ The ``ConfigGetter`` class
     :param str namespace: The namespace for all configuration entry lookups.
                           If an environment variable of ``<NAMESPACE>_CONFIG`` is set, the file at that path
                           will be loaded.
+                          Pass in the ``getconf.NO_NAMESPACE`` special value to load an empty namespace.
     :param list config_files: List of ini-style configuration files to use.
                               Each item may either be the path to a simple file, or to a directory
                               (if the path ends with a '/') or a glob pattern (which will select all the files
@@ -26,6 +27,10 @@ The ``ConfigGetter`` class
                               all ``config_files`` contents.
     :param dict defaults: Dictionary of defaults values that are fetch with the lowest priority.
                           The value for 'section.key' will be looked up at ``defaults['section']['key']``.
+
+    .. warning:: When running with an empty namespace (``namespace=getconf.NO_NAMESPACE``), the environment variables
+                 are looked up under ``<SECTION>_<KEY>`` instead of ``<NAMESPACE>_<SECTION>_<KEY>``; use this setup with
+                 care, since getconf might load variables that weren't intended for this application.
 
     .. method:: getstr(key[, default=''])
 
