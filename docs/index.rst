@@ -11,6 +11,7 @@ Contents:
    reference
    advanced
    goals
+   development
    changelog
 
 

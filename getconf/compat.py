@@ -27,3 +27,10 @@ else:
     text_type = str
     string_types = str
     import configparser
+
+
+def get_no_interpolation_config_parser():
+    if PY2:
+        return configparser.RawConfigParser()
+    else:
+        return configparser.ConfigParser(interpolation=None)

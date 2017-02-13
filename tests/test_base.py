@@ -544,6 +544,11 @@ class ConfigGetterTestCase(unittest.TestCase):
         finally:
             os.unlink(f.name)
 
+    def test_no_interpolation(self):
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path])
+        section = getter.get_section('no-interpolation')
+        self.assertEqual('%(noascii)', section['nointerpolation'])
+
 
 if __name__ == '__main__':
     unittest.main()
