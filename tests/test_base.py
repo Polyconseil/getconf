@@ -194,7 +194,7 @@ class ConfigGetterTestCase(unittest.TestCase):
 
     def test_environ_empty_namespace(self):
         """Tests that empty namespace maps to correct environment variables."""
-        getter = getconf.ConfigGetter(None, [self.example_path])
+        getter = getconf.ConfigGetter(getconf.NO_NAMESPACE, [self.example_path])
         self.assertEqual('42', getter.getstr('bar'))
         self.assertEqual('13', getter.getstr('section1.foo'))
 
