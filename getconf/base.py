@@ -27,6 +27,10 @@ _ConfigKey = collections.namedtuple(
 )
 
 
+# Constant indicating that no namespace should be prefixed to environment variables.
+NO_NAMESPACE = object()
+
+
 class ConfigKey(_ConfigKey):
 
     def __hash__(self):
@@ -137,9 +141,11 @@ class ConfigGetter(object):
 
     def _env_key(self, key, section=''):
         if section:
-            args = (self.namespace, section, key)
+            args = (section, key)
         else:
-            args = (self.namespace, key)
+            args = (key,)
+        if self.namespace is not NO_NAMESPACE:
+            args = (self.namespace,) + args
         return '_'.join(arg.upper() for arg in args)
 
     def _read_env(self, key):

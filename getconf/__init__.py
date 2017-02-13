@@ -7,4 +7,7 @@ __author__ = "Polyconseil <opensource+getconf@polyconseil.fr>"
 __version__ = '1.6.0'
 
 
-from .base import ConfigGetter
+from .base import (
+    ConfigGetter,
+    NO_NAMESPACE,
+)

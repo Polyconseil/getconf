@@ -37,7 +37,7 @@ class Environ(object):
 
 
 class ConfigGetterTestCase(unittest.TestCase):
-    example_directory = os.path.join(os.path.dirname(__file__), 'config/')
+    example_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config/'))
     example_path = os.path.join(example_directory, 'example.ini')
     example2_path = os.path.join(example_directory, 'example2.ini')
 
@@ -189,6 +189,16 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual('13', getter.getstr('section1.foo'))
 
         with Environ(TESTNS_BAR='blah', TESTNS_SECTION1_FOO='baz'):
+            self.assertEqual('blah', getter.getstr('bar'))
+            self.assertEqual('baz', getter.getstr('section1.foo'))
+
+    def test_environ_empty_namespace(self):
+        """Tests that empty namespace maps to correct environment variables."""
+        getter = getconf.ConfigGetter(getconf.NO_NAMESPACE, [self.example_path])
+        self.assertEqual('42', getter.getstr('bar'))
+        self.assertEqual('13', getter.getstr('section1.foo'))
+
+        with Environ(BAR='blah', SECTION1_FOO='baz'):
             self.assertEqual('blah', getter.getstr('bar'))
             self.assertEqual('baz', getter.getstr('section1.foo'))
 
