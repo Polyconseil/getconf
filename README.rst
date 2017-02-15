@@ -149,7 +149,10 @@ Concepts
 
     Its goal is to avoid mistakes while reading the environment:
     with ``ConfigGetter(namespace='myproj')``, only environment variables
-    beginning with ``MYPROJ_`` will be read
+    beginning with ``MYPROJ_`` will be read.
+
+    It is, however, possible to disable namespacing by using
+    ``ConfigGetter(namespace=getconf.NO_NAMESPACE)``.
 
 **Sections**
     The configuration options for a project often grow quite a lot;
