@@ -32,6 +32,10 @@ The ``ConfigGetter`` class
                  are looked up under ``<SECTION>_<KEY>`` instead of ``<NAMESPACE>_<SECTION>_<KEY>``; use this setup with
                  care, since getconf might load variables that weren't intended for this application.
 
+    .. warning:: Using dash in section or key would prevent from overriding values using environment variables.
+                 Dash are converted to underscore internally, but if you have the same variable using underscore, it would
+                 override both of them.
+
     .. method:: getstr(key[, default=''])
 
         Retrieve a key from available environments.

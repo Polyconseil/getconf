@@ -146,7 +146,7 @@ class ConfigGetter(object):
             args = (key,)
         if self.namespace is not NO_NAMESPACE:
             args = (self.namespace,) + args
-        return '_'.join(arg.upper() for arg in args)
+        return '_'.join(arg.upper() for arg in args).replace('-', '_')
 
     def _read_env(self, key):
         """Handle environ-related logic."""

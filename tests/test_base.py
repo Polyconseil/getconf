@@ -56,6 +56,15 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual('blah', getter.getstr('foo', 'foo'))
             self.assertEqual('', getter.getstr('bar'))
 
+    def test_environ_dash_declaration(self):
+        """Test when a section declaration contains a dash"""
+        getter = getconf.ConfigGetter('TESTNS', [self.example_path])
+        with Environ(TESTNS_NO_INTERPOLATION_NOINTERPOLATION="no-interpolation"):
+            self.assertEqual('no-interpolation', getter.getstr('no-interpolation.nointerpolation'))
+
+        with Environ(TESTNS_NO_INTERPOLATION_WITH_DASHES="value"):
+            self.assertEqual('value', getter.getstr('no-interpolation.with-dashes'))
+
     def test_environ_section(self):
         """Test fetching section.key from environment."""
         getter = getconf.ConfigGetter('TESTNS')
