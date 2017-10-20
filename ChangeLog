@@ -4,6 +4,9 @@ ChangeLog
 Next version
 ------------
 
+1.7.1 (2017-10-20)
+------------------
+
 *Bugfix:*
 
     * Allows to override a configuration containing a dash.
