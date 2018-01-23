@@ -3,13 +3,84 @@ Reference
 
 .. module:: getconf
 
+The ``BaseConfigGetter`` class
+------------------------------
+
+.. py:class:: BaseConfigGetter(*config_finders)
+
+    This class works as the base for all ConfigGetters.
+
+    :param config_finders: The list of finders the ``BaseConfigGetter`` will use to lookup keys.
+                           Finders are python objects providing the ``find(key)`` method that will be called in
+                           the order the ``config_finders`` were provided order until one of them finds the ``key``.
+                           The ``find(key)`` method should either return a string or raise ``NotFound`` depending
+                           on wheither the ``key`` was found or not.
+
+    .. py:method:: getstr(key[, default=''])
+
+        Retrieve a key from available configuration sources.
+
+        :param str key: The name of the field to use.
+        :param str default: The default value (string) for the field; optional
+
+        .. note:: The ``key`` param accepts two formats:
+
+                  - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
+                  - ``'foo'``, mapped to section ``''``, key ``'bar'``
+
+        This looks, in order, at:
+
+        - ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set, ``<NAMESPACE>_<KEY>`` otherwise
+        - The ``<key>`` entry of the ``<section>`` section of the file given in ``<NAMESPACE>_CONFIG``
+        - The ``<key>`` entry of the ``<section>`` section of each file given in ``config_files``
+        - The ``default`` value
+
+    .. py:method:: getlist(key[, default=()])
+
+        Retrieve a key from available configuration sources, and parse it as a list.
+
+        .. warning::
+
+            The default value has the same syntax as expected values, e.g ``foo,bar,baz``.
+            It is **not** a list.
+
+        It splits the value on commas, and return stripped non-empty values:
+
+        .. code-block:: pycon
+
+            >>> os.environ['A'] = 'foo'
+            >>> os.environ['B'] = 'foo,bar, baz,,'
+            >>> getter.getlist('a')
+            ['foo']
+            >>> getter.getlist('b')
+            ['foo', 'bar', 'baz']
+
+    .. py:method:: getbool(key[, default=False])
+
+        Retrieve a key from available configuration sources, and parse it as a boolean.
+
+        The following values are considered as ``True`` : ``'on'``, ``'yes'``, ``'true'``, ``'1'``.
+        Case variations of those values also count as ``True``.
+
+    .. py:method:: getint(key[, default=0])
+
+        Retrieve a key from available configuration sources, and parse it as an integer.
+
+    .. py:method:: getfloat(key[, default=0.0])
+
+        Retrieve a key from available configuration sources, and parse it as a floating point number.
+
+    .. py:method:: gettimedelta(key[, default='0d'])
+
+        Retrieve a key from available configuration sources, and parse it as a datetime.timedelta object.
+
 
 The ``ConfigGetter`` class
 ---------------------------
 
-.. class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...})
+.. py:class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...})
 
-    This class works as a proxy around both :attr:`os.environ` and INI configuration files.
+    A ready-to-use ConfigGetter working working as a proxy around both :attr:`os.environ` and INI configuration files.
 
     :param str namespace: The namespace for all configuration entry lookups.
                           If an environment variable of ``<NAMESPACE>_CONFIG`` is set, the file at that path
@@ -36,65 +107,7 @@ The ``ConfigGetter`` class
                  Dash are converted to underscore internally, but if you have the same variable using underscore, it would
                  override both of them.
 
-    .. method:: getstr(key[, default=''])
-
-        Retrieve a key from available environments.
-
-        :param str key: The name of the field to use.
-        :param str default: The default value (string) for the field; optional
-
-        .. note:: The ``key`` param accepts two formats:
-
-                  - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
-                  - ``'foo'``, mapped to section ``''``, key ``'bar'``
-
-        This looks, in order, at:
-
-        - ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set, ``<NAMESPACE>_<KEY>`` otherwise
-        - The ``<key>`` entry of the ``<section>`` section of the file given in ``<NAMESPACE>_CONFIG``
-        - The ``<key>`` entry of the ``<section>`` section of each file given in ``config_files``
-        - The ``default`` value
-
-    .. method:: getlist(key[, default=()])
-
-        Retrieve a key from available configuration sources, and parse it as a list.
-
-        .. warning::
-
-            The default value has the same syntax as expected values, e.g ``foo,bar,baz``.
-            It is **not** a list.
-
-        It splits the value on commas, and return stripped non-empty values:
-
-        .. code-block:: pycon
-
-            >>> os.environ['A'] = 'foo'
-            >>> os.environ['B'] = 'foo,bar, baz,,'
-            >>> getter.getlist('a')
-            ['foo']
-            >>> getter.getlist('b')
-            ['foo', 'bar', 'baz']
-
-    .. method:: getbool(key[, default=False])
-
-        Retrieve a key from available configuration sources, and parse it as a boolean.
-
-        The following values are considered as ``True`` : ``'on'``, ``'yes'``, ``'true'``, ``'1'``.
-        Case variations of those values also count as ``True``.
-
-    .. method:: getint(key[, default=0])
-
-        Retrieve a key from available configuration sources, and parse it as an integer.
-
-    .. method:: getfloat(key[, default=0.0])
-
-        Retrieve a key from available configuration sources, and parse it as a floating point number.
-
-    .. method:: gettimedelta(key[, default='0d'])
-
-        Retrieve a key from available configuration sources, and parse it as a datetime.timedelta object.
-
-    .. method:: get_section(section_name)
+    .. py:method:: get_section(section_name)
 
         Retrieve a dict-like proxy over a configuration section.
         This is intended to avoid polluting ``settings.py`` with a bunch of
@@ -103,7 +116,7 @@ The ``ConfigGetter`` class
         .. note:: The returned object only supports the ``__getitem__`` side of dicts
                   (e.g. ``section_config['foo']`` will work, ``'foo' in section_config`` won't)
 
-    .. method:: get_ini_template()
+    .. py:method:: get_ini_template()
 
         Return INI like commented content equivalent to the default values.
 
@@ -129,8 +142,58 @@ The ``ConfigGetter`` class
                   not be present in the `get_ini_template` return value.
 
 
-Example
--------
+The provided finders
+--------------------
+
+.. py:class:: getconf.finders.NamespacedEnvFinder(namespace)
+
+    Keys are lookuped in ``os.environ`` with the provided ``namespace``.
+    The ``key`` can follow two formats:
+
+        - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
+        - ``'foo'``, mapped to section ``''``, key ``'bar'``
+
+    The finder will look at ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set,
+    ``<NAMESPACE>_<KEY>`` otherwise.
+
+    Keys are upper-cased and dash are converted to underscore before lookup as using dash in section or key
+    would prevent from overriding values using environment variables.
+
+    If the special ``NO_NAMESPACE`` namespace is used, the finder will look at
+    ``<SECTION>_<KEY>`` if ``section`` is set, ``<KEY>`` otherwise.
+
+.. py:class:: getconf.finders.MultiINIFilesParserFinder(config_files)
+
+    Keys are lookuped in the provided ``config_files`` using Python's ``ConfigParser``.
+
+    The ``key`` can follow two formats:
+
+        - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
+        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'bar'``
+
+    The ``config_files`` argument can contain directories and glob that will be expanded
+    while preserving the provided order:
+
+        - a directory ``some_dir`` is interpreted as the glob ``some_dir/*``
+        - a glob is replaced by the matching files list ordered by name
+
+    Finally, the config parser (which interpolation switched off) will search the ``section.entry``
+    value in its files, with the last provided file having the strongest priority.
+
+.. py:class:: getconf.finders.SectionDictFinder(data)
+
+    Keys are lookuped in the provided 1-level nested dictionary ``data``.
+
+    The ``key`` can follow two formats:
+
+        - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
+        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'bar'``
+
+    The finder will look at ``data[section][key]``.
+
+
+ConfigGetter Example
+--------------------
 
 With the following setup:
 
@@ -196,3 +259,35 @@ We get the following outputs:
     Env: prod
     DB: prod.example.net
     Debug: True
+
+
+BaseConfigGetter example
+------------------------
+
+We can easily create a config getter ignoring env varibles.
+
+With the following setup:
+
+.. code-block:: ini
+
+    # /etc/getconf/example.ini
+    [DEFAULT]
+    env = example
+
+    [db]
+    host = foo.example.net
+
+We get:
+
+.. code-block:: python
+
+    # test_config.py
+    import getconf
+    import getconf.finders
+    config = getconf.BaseConfigGetter(
+        getconf.finders.MultiINIFilesParserFinder(['/etc/getconf/*.ini']),
+        getconf.finders.SectionDictFinder({'db': {'host': 'default.db.host', 'port': '1234'}}),
+    )
+    config.getstr('env') == 'example'
+    config.getstr('db.host') == 'foo.example.net'
+    config.getstr('db.port') == '1234'

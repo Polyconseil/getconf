@@ -46,6 +46,9 @@ Production:
   * In a could-like setup, I can use facilities provided by my platform to set the appropriate environment variables
   * In a simpler, dedicated server setup, the application can also be configured with files in ``/etc``
 
+Customization:
+  * While providing sane defaults via the ``ConfigGetter`` class, you can easily define and use your own logic
+    by providing the finders you want to use in the order you want by using/subclassing ``BaseConfigGetter``.
 
 
 Other options
