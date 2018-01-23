@@ -6,13 +6,12 @@ from __future__ import unicode_literals
 
 import collections
 import datetime
-import glob
 import logging
-import os
+import operator
 import warnings
 
 from . import compat
-from .compat import configparser
+from . import finders
 
 
 logger = logging.getLogger(__name__)
@@ -23,12 +22,8 @@ logger.addHandler(compat.NullHandler())
 
 _ConfigKey = collections.namedtuple(
     'ConfigKey',
-    ['section', 'entry', 'envvar', 'doc', 'default', 'type_hint']
+    ['key', 'doc', 'default', 'type_hint']
 )
-
-
-# Constant indicating that no namespace should be prefixed to environment variables.
-NO_NAMESPACE = object()
 
 
 class ConfigKey(_ConfigKey):
@@ -39,167 +34,33 @@ class ConfigKey(_ConfigKey):
             default = tuple(self.default)
         else:
             default = self.default
-        return hash((self.section, self.entry, self.envvar, self.doc, default, self.type_hint))
-
-    def as_ini_entry(self):
-        """Format as a commented entry in INI format (section is omitted)
-
-        ; type=str - The provided documentation
-        ;entry = default_value
-        """
-        # Remove any new line in self.doc
-        one_line_doc = ' '.join(self.doc.split())
-        doc_part = (' - %s' % one_line_doc) if one_line_doc else ''
-
-        if self.type_hint == 'list':
-            default = ', '.join(self.default)
-        elif self.type_hint == 'bool':
-            default = 'on' if self.default else 'off'
-        else:
-            default = str(self.default)
-        default_str = ' %s' % default if default else ''
-        return '; {envvar} - type={type_hint}{doc_part}\n;{entry} ={default_str}'.format(
-            envvar=self.envvar,
-            type_hint=self.type_hint,
-            doc_part=doc_part,
-            entry=self.entry,
-            default_str=default_str,
-        )
+        return hash((self.key, self.doc, default, self.type_hint))
 
 
-class NotFound(KeyError):
-    """Raised when a key is not found in a configuration source."""
+class BaseConfigGetter(object):
+    """Base class used to define custom ConfigGetter
 
-
-class ConfigGetter(object):
-    """A simple wrapper around ConfigParser + os.environ.
-
-    Designed for use in a settings.py file.
-
-    Usage:
-        >>> config = ConfigGetter('blusers', ['/etc/blusers/settings.ini'])
-        >>> x = config.get('psql.server', 'localhost:5432')
-        'localhost:5432'
-
-    With the above ``ConfigGetter``:
-    - Calls to get('psql.server', 'foo') will look at:
-        - Environment key BLUSERS_PSQL_SERVER
-        - Key 'server' from section 'pqsl' of config file given in env
-          BLUSERS_CONFIG, if provided
-        - Key 'server' from section 'psql' of config file
-          ``/etc/blusers/settings.ini``
-        - Key 'psql' in key 'server' of default config dict
-        - The provided default
-
-    - Calls to get('secret_key') will look at:
-        - Environment key BLUSERS_SECRET_KEY
-        - Key 'secret_key' from section 'DEFAULT' of config file given in env
-          BLUSERS_CONFIG, if provided
-        - Key 'secret_key' from section 'DEFAULT' of config file
-          ``/etc/blusers/settings.ini``
-        - Key 'secret_key' of default config dict
-        - The empty string
+    It expects a list of finder objects implementing a ``find(key)`` method that should
+    either return a string if the key was found or raise finders.NotFound() otherwise.
+    Finders will be called in the specified order.
     """
 
-    def __init__(self, namespace, config_files=(), defaults=None):
-        self.parser = compat.get_no_interpolation_config_parser()
+    def __init__(self, *config_finders):
+        self.finders = config_finders
         self.seen_keys = set()
 
-        self.namespace = namespace
-        self.defaults = defaults or {}
-
-        self.search_files = []
-        extra_config_file = os.environ.get(self._env_key('config'), None)
-
-        for path in list(config_files) + [extra_config_file]:
-            if path is None:
-                continue
-            # Handle '~/.foobar.conf'
-            path = os.path.abspath(os.path.expanduser(path))
-            if os.path.isdir(path):
-                path = os.path.join(path, '*')
-
-            self.search_files.append(path)
-
-        final_config_files = []
-        for path in self.search_files:
-            directory_files = glob.glob(path)
-            if directory_files:
-                # Reverse order: final_config_files is parsed from left to right,
-                # so 99_foo naturally takes precedence over 10_base
-                final_config_files.extend(sorted(directory_files))
-
-        # ConfigParser's precedence rules say "later files take precedence over previous ones".
-        # Since our final_config_files are sorted from least important to most important,
-        # that's exactly what we need.
-        self.found_files = self.parser.read(final_config_files)
-
-        logger.info(
-            "Successfully loaded configuration from files %r (searching in %r)",
-            self.found_files, self.search_files,
-        )
-
-    def _env_key(self, key, section=''):
-        if section:
-            args = (section, key)
-        else:
-            args = (key,)
-        if self.namespace is not NO_NAMESPACE:
-            args = (self.namespace,) + args
-        return '_'.join(arg.upper() for arg in args).replace('-', '_')
-
-    def _read_env(self, key):
-        """Handle environ-related logic."""
-        try:
-            value = os.environ[key]
-        except KeyError:
-            raise NotFound()
-
-        if compat.PY2:  # Bytes in PY2, text in PY3.
-            value = value.decode('utf-8')
-        return value
-
-    def _read_parser(self, config_section, key):
-        """Handle configparser-related logic."""
-        try:
-            value = self.parser.get(config_section, key)
-        except (configparser.NoSectionError, configparser.NoOptionError):
-            raise NotFound()
-
-        if compat.PY2:  # Bytes in PY2, text in PY3
-            value = value.decode('utf-8')
-        return value
-
-    def _read(self, env_key, section, key, default):
-        try:
-            return self._read_env(env_key)
-        except NotFound:
-            pass
-
-        try:
-            return self._read_parser(section, key)
-        except NotFound:
-            pass
-
-        try:
-            return self.defaults[section][key]
-        except KeyError:
-            pass
+    def _read(self, key, default):
+        for finder in self.finders:
+            try:
+                return finder.find(key)
+            except finders.NotFound:
+                pass
 
         return default
 
     def _get(self, key, default, doc, type_hint=''):
-        if '.' in key:
-            section, key = key.split('.', 1)
-        else:
-            section = ''
-        env_key = self._env_key(key, section=section)
-        config_section = section or 'DEFAULT'
-        value = self._read(env_key=env_key, section=config_section, key=key, default=default)
-        self.seen_keys.add(
-            ConfigKey(section=config_section, entry=key, envvar=env_key,
-                      doc=doc, default=default, type_hint=type_hint)
-        )
+        value = self._read(key=key, default=default)
+        self.seen_keys.add(ConfigKey(key=key, doc=doc, default=default, type_hint=type_hint))
         return value
 
     def get(self, key, default='', doc=''):
@@ -307,6 +168,64 @@ class ConfigGetter(object):
         else:
             return datetime.timedelta(**{unit: value})
 
+
+class ConfigGetter(BaseConfigGetter):
+    """A simple wrapper around ConfigParser + os.environ.
+
+    Designed for use in a settings.py file.
+
+    Usage:
+        >>> config = ConfigGetter('blusers', ['/etc/blusers/settings.ini'])
+        >>> x = config.get('psql.server', 'localhost:5432')
+        'localhost:5432'
+
+    With the above ``ConfigGetter``:
+    - Calls to get('psql.server', 'foo') will look at:
+        - Environment key BLUSERS_PSQL_SERVER
+        - Key 'server' from section 'pqsl' of config file given in env
+          BLUSERS_CONFIG, if provided
+        - Key 'server' from section 'psql' of config file
+          ``/etc/blusers/settings.ini``
+        - Key 'psql' in key 'server' of default config dict
+        - The provided default
+
+    - Calls to get('secret_key') will look at:
+        - Environment key BLUSERS_SECRET_KEY
+        - Key 'secret_key' from section 'DEFAULT' of config file given in env
+          BLUSERS_CONFIG, if provided
+        - Key 'secret_key' from section 'DEFAULT' of config file
+          ``/etc/blusers/settings.ini``
+        - Key 'secret_key' of default config dict
+        - The empty string
+    """
+
+    def __init__(self, namespace, config_files=(), defaults=None):
+        self._env_finder = finders.NamespacedEnvFinder(namespace)
+
+        config_files = list(config_files)
+        try:
+            config_files.append(self._env_finder.find('config'))
+        except finders.NotFound:
+            pass
+        self._parser_finder = finders.MultiINIFilesParserFinder(config_files)
+        logger.info(
+            "Successfully loaded configuration from files %r (searching in %r)",
+            self._parser_finder.found_files, self._parser_finder.search_files,
+        )
+        super(ConfigGetter, self).__init__(
+            self._env_finder,
+            self._parser_finder,
+            finders.SectionDictFinder(defaults or {}),
+        )
+
+    @property
+    def search_files(self):
+        return self._parser_finder.search_files
+
+    @property
+    def found_files(self):
+        return self._parser_finder.found_files
+
     def get_section(self, section_name):
         """Return a dict-like object for the chosen section."""
         return ConfigSectionGetter(self, section_name)
@@ -322,14 +241,36 @@ class ConfigGetter(object):
     def get_ini_template(self):
         """Export commented INI file content mapping to the defaults"""
         section_to_keys = collections.defaultdict(list)
-        for key in self.seen_keys:
-            section_to_keys[key.section].append(key)
+        for config_key in self.seen_keys:
+            section, entry = self._parser_finder.split_section_key(config_key.key)
+            envvar = self._env_finder.env_key(config_key.key)
+
+            # Remove any new line in doc
+            one_line_doc = ' '.join(config_key.doc.split())
+            doc_part = (' - %s' % one_line_doc) if one_line_doc else ''
+
+            if config_key.type_hint == 'list':
+                default = ', '.join(config_key.default)
+            elif config_key.type_hint == 'bool':
+                default = 'on' if config_key.default else 'off'
+            else:
+                default = str(config_key.default)
+            default_str = ' %s' % default if default else ''
+
+            entry_str = '; {envvar} - type={type_hint}{doc_part}\n;{entry} ={default_str}'.format(
+                envvar=envvar,
+                type_hint=config_key.type_hint,
+                doc_part=doc_part,
+                entry=entry,
+                default_str=default_str,
+            )
+            section_to_keys[section].append((entry, entry_str))
 
         parts = []
         for section, keys in sorted(section_to_keys.items()):
             parts.append('[%s]' % section)
-            for config_key in sorted(keys, key=lambda k: k.entry):
-                parts.append(config_key.as_ini_entry())
+            for _entry, entry_str in sorted(keys, key=operator.itemgetter(0)):
+                parts.append(entry_str)
             # Add a newline between sections
             parts.append('')
         # But drop last newline

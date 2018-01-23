@@ -8,6 +8,7 @@ __version__ = '1.7.1'
 
 
 from .base import (
+    BaseConfigGetter,
     ConfigGetter,
-    NO_NAMESPACE,
 )
+from .finders import NO_NAMESPACE
