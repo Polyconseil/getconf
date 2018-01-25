@@ -191,6 +191,16 @@ The provided finders
 
     The finder will look at ``data[section][key]``.
 
+.. py:class:: getconf.finders.ContentFileFinder(directory, encoding='utf-8')
+
+    Keys are lookuped in the provided directory as files.
+
+    If the directory contains a file named ``key``, its content (decoded as ``encoding``) will
+    be returned.
+
+    Typically, this can be used to load configuration from Kubernetes' ConfigMaps and Secrets
+    mounted on a volume.
+
 
 ConfigGetter Example
 --------------------

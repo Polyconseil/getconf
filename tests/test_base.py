@@ -6,8 +6,10 @@
 from __future__ import unicode_literals
 
 import datetime
+import io
 import os
 import sys
+import shutil
 import tempfile
 import unittest
 import warnings
@@ -557,6 +559,29 @@ class ConfigGetterTestCase(unittest.TestCase):
         getter = getconf.ConfigGetter('TESTNS', [self.example_path])
         section = getter.get_section('no-interpolation')
         self.assertEqual('%(noascii)', section['nointerpolation'])
+
+
+class ContentFileFinderTestCase(unittest.TestCase):
+
+    def setUp(self):
+        super(ContentFileFinderTestCase, self).setUp()
+        self.tmpdir = tempfile.mkdtemp(prefix='getconf-tests')
+
+    def tearDown(self):
+        shutil.rmtree(self.tmpdir)
+        super(ContentFileFinderTestCase, self).tearDown()
+
+    def test_finder(self):
+        # TODO: use tempfile.TemporaryDirectory once Python 2.7 is dropped
+        with io.open(os.path.join(self.tmpdir, 'some_key'), 'w', encoding='utf-8') as f:
+            f.write('42')
+        with io.open(os.path.join(self.tmpdir, 'foo.bar'), 'w', encoding='utf-8') as f:
+            f.write('baz')
+        finder = getconf.finders.FileContentFinder(self.tmpdir)
+        self.assertEqual(finder.find('some_key'), '42')
+        self.assertEqual(finder.find('foo.bar'), 'baz')
+        with self.assertRaises(getconf.finders.NotFound):
+            finder.find('non_existing_key')
 
 
 if __name__ == '__main__':
