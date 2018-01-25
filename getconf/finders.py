@@ -5,6 +5,7 @@
 from __future__ import unicode_literals
 
 import glob
+import io
 import os
 
 from . import compat
@@ -151,3 +152,17 @@ class MultiINIFilesParserFinder(object):
         if compat.PY2:  # Bytes in PY2, text in PY3
             value = value.decode('utf-8')
         return value
+
+
+class FileContentFinder(object):
+
+    def __init__(self, directory, encoding='utf-8'):
+        self.directory = directory
+        self.encoding = encoding
+
+    def find(self, key):
+        path = os.path.join(self.directory, key)
+        if os.path.isfile(path):
+            with io.open(path, encoding=self.encoding) as f:
+                return f.read()
+        raise NotFound()
