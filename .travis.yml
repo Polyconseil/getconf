@@ -1,8 +1,13 @@
 language: python
-python:
-  - "2.7"
-  - "3.3"
-  - "3.4"
-  - "3.5"
+matrix:
+  include:
+    - python: "2.7"
+    - python: "3.3"
+    - python: "3.4"
+    - python: "3.5"
+    - python: "3.6"
+    - python: "nightly"
+  allow_failures:
+    - python: "nightly"
 install: pip install -r requirements_dev.txt
 script: nosetests

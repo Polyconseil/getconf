@@ -52,9 +52,7 @@ setup(
     packages=find_packages(exclude=['tests']),
     platforms=["OS Independent"],
     install_requires=[],
-    setup_requires=[
-        'setuptools>=0.8',
-    ],
+    python_requires='>=2.7,!=3.0.*,!=3.1.*,!=3.2.*',
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
@@ -65,6 +63,8 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
         "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
         "Topic :: Software Development",
         "Topic :: System :: Installation/Setup",
         "Topic :: System :: Systems Administration",
