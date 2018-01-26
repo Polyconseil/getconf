@@ -234,7 +234,7 @@ class ConfigGetter(BaseConfigGetter):
         """Return the list of used keys.
 
         Returns:
-            list of ConfigKey (section, entry, envvar tuple)
+            list of ConfigKey
         """
         return sorted(self.seen_keys)
 
