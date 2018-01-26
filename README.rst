@@ -41,6 +41,7 @@ respecting the standard procedures in each system:
 * Handle environment-based configuration for cloud-based platforms
 
 ``getconf`` v1.6 onwards supports 2.7, 3.3, 3.4, 3.5, 3.6 and is distributed under the two-clause BSD license.
+v1.8.x will be the last versions to support 2.7 and 3.3.
 The latest version of ``getconf`` to support Python 2.6 is v1.5.1.
 
 Links

@@ -8,6 +8,9 @@ Next version
 
     * Add ``BaseConfigGetter`` and the notion of "finders" to ease customization.
 
+*Note:*
+
+    * Python 2.7 and 3.3 support will be dropped in next minor version.
 
 1.7.1 (2017-10-20)
 ------------------
