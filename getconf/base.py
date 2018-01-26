@@ -176,7 +176,7 @@ class ConfigGetter(BaseConfigGetter):
 
     Usage:
         >>> config = ConfigGetter('blusers', ['/etc/blusers/settings.ini'])
-        >>> x = config.get('psql.server', 'localhost:5432')
+        >>> x = config.getstr('psql.server', 'localhost:5432')
         'localhost:5432'
 
     With the above ``ConfigGetter``:
@@ -284,4 +284,4 @@ class ConfigSectionGetter(object):
         self.section = section
 
     def __getitem__(self, key):
-        return self.base_config.get('%s.%s' % (self.section, key))
+        return self.base_config.getstr('%s.%s' % (self.section, key))

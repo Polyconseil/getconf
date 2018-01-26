@@ -28,7 +28,7 @@ It provides a simple API to read from various configuration files and environmen
 
     import getconf
     config = getconf.ConfigGetter('myproj', ['/etc/myproj.conf'])
-    db_host = config.get('db.host', 'localhost')
+    db_host = config.getstr('db.host', 'localhost')
     db_port = config.getint('db.port', 5432)
 
 
@@ -95,7 +95,7 @@ Once the ``getconf.ConfigGetter`` has been configured, it can be used to retriev
 .. code-block:: python
 
     debug = config.getbool('debug', False)
-    db_host = config.get('db.host', 'localhost')
+    db_host = config.getstr('db.host', 'localhost')
     db_port = config.getint('db.port', 5432)
     allowed_hosts = config.getlist('django.allowed_hosts', ['*'])
 
@@ -127,7 +127,7 @@ Features
     .. code-block:: pycon
 
         >>> config = ConfigGetter('myproj', defaults={'db': {'host': 'localhost'}})
-        >>> config.get('db.host')
+        >>> config.getstr('db.host')
         'localhost'
 
 **Typed getters**

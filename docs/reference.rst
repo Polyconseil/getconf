@@ -111,7 +111,7 @@ The ``ConfigGetter`` class
 
         Retrieve a dict-like proxy over a configuration section.
         This is intended to avoid polluting ``settings.py`` with a bunch of
-        ``FOO = config.get('bar.foo'); BAR = config.get('bar.bar')`` commands.
+        ``FOO = config.getstr('bar.foo'); BAR = config.getstr('bar.bar')`` commands.
 
         .. note:: The returned object only supports the ``__getitem__`` side of dicts
                   (e.g. ``section_config['foo']`` will work, ``'foo' in section_config`` won't)
