@@ -155,6 +155,11 @@ class MultiINIFilesParserFinder(object):
 
 
 class FileContentFinder(object):
+    """Simple finder finding key in a directory by matching filenames
+
+    If the specified ``directory`` contains a file named ``key``, its content
+    is decoded using the specified ``encoding`` and returned as value.
+    """
 
     def __init__(self, directory, encoding='utf-8'):
         self.directory = directory
