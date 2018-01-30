@@ -2,3 +2,6 @@
 PACKAGE = getconf
 
 include $(shell makefile_path python.mk)
+
+release:
+	fullrelease
