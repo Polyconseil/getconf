@@ -70,4 +70,5 @@ setup(
         "Topic :: System :: Systems Administration",
     ],
     include_package_data=True,
+    zip_safe=False,
 )
