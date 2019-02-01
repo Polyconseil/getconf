@@ -89,7 +89,12 @@ class BaseConfigGetter(object):
         ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
         if isinstance(default, compat.text_type):
             warnings.warn(
-                "Use of a string as default value in getlist() is deprecated. Use lists instead",
+                "Use of a string as default value in getlist() is deprecated. Use list of strings instead",
+                DeprecationWarning
+            )
+        if default is not None and any(not isinstance(value, compat.text_type) for value in default):
+            warnings.warn(
+                "List of non-string as default is deprecated. Use list of strings instead",
                 DeprecationWarning
             )
         value = self._get(key, default=default, doc=doc, type_hint='list')
