@@ -8,6 +8,10 @@ ChangeLog
 
     * Drop support of Python 3.3 which reached EOL in September 2017
 
+*Deprecated:*
+
+    * Use of list of non-strings as getconf.getlist() default value is deprecated
+
 
 1.8.0 (2018-01-30)
 ------------------
