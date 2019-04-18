@@ -26,7 +26,7 @@ The ``BaseConfigGetter`` class
         .. note:: The ``key`` param accepts two formats:
 
                   - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
-                  - ``'foo'``, mapped to section ``''``, key ``'bar'``
+                  - ``'foo'``, mapped to section ``''``, key ``'foo'``
 
         This looks, in order, at:
 
@@ -151,7 +151,7 @@ The provided finders
     The ``key`` can follow two formats:
 
         - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
-        - ``'foo'``, mapped to section ``''``, key ``'bar'``
+        - ``'foo'``, mapped to section ``''``, key ``'foo'``
 
     The finder will look at ``<NAMESPACE>_<SECTION>_<KEY>`` if ``section`` is set,
     ``<NAMESPACE>_<KEY>`` otherwise.
@@ -169,7 +169,7 @@ The provided finders
     The ``key`` can follow two formats:
 
         - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
-        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'bar'``
+        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'foo'``
 
     The ``config_files`` argument can contain directories and glob that will be expanded
     while preserving the provided order:
@@ -187,7 +187,7 @@ The provided finders
     The ``key`` can follow two formats:
 
         - ``'foo.bar'``, mapped to section ``'foo'``, key ``'bar'``
-        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'bar'``
+        - ``'foo'``, mapped to section ``'DEFAULT'``, key ``'foo'``
 
     The finder will look at ``data[section][key]``.
 
