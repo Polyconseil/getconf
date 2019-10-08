@@ -13,13 +13,10 @@ To run tests:
 
     nosetests
 
-To make a release, use the ``release`` target:
+To make a release:
 
 .. code-block:: sh
 
-    make release
-
-which relies on `zest.releaser`_.
-
+    fullrelease
 
 .. _zest.releaser: https://zestreleaser.readthedocs.io/en/latest/index.html

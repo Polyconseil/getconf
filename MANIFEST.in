@@ -11,5 +11,4 @@ global-exclude *.py[cod] __pycache__ *.so .*.swp *~
 
 # Be explicit to make check-manifest happy.
 exclude .pylintrc
-exclude Makefile
 exclude release.conf
