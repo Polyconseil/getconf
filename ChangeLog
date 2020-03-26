@@ -6,6 +6,8 @@ ChangeLog
 
 *Removed:*
 
+    * Drop support of Python 2.7 which reached EOL in January 2020
+
     * Drop support of Python 3.4 which reached EOL in 2019
 
 

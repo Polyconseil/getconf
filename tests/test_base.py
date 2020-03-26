@@ -1,14 +1,10 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (c) Polyconseil SAS. All rights reserved.
 # This code is distributed under the two-clause BSD License.
-
-from __future__ import unicode_literals
 
 import datetime
 import io
 import os
-import sys
 import shutil
 import tempfile
 import unittest
@@ -17,7 +13,7 @@ import warnings
 import getconf
 
 
-class Environ(object):
+class Environ:
     def __init__(self, **kwargs):
         self.old = {}
         self.override = kwargs
@@ -26,8 +22,6 @@ class Environ(object):
         for k, v in self.override.items():
             if k in os.environ:
                 self.old[k] = os.environ[k]
-            if sys.version_info[0] == 2:
-                v = v.encode('utf-8')  # os.environ is bytes in PY2
             os.environ[k] = v
 
     def __exit__(self, *args, **kwargs):
@@ -563,25 +557,17 @@ class ConfigGetterTestCase(unittest.TestCase):
 
 class ContentFileFinderTestCase(unittest.TestCase):
 
-    def setUp(self):
-        super(ContentFileFinderTestCase, self).setUp()
-        self.tmpdir = tempfile.mkdtemp(prefix='getconf-tests')
-
-    def tearDown(self):
-        shutil.rmtree(self.tmpdir)
-        super(ContentFileFinderTestCase, self).tearDown()
-
     def test_finder(self):
-        # TODO: use tempfile.TemporaryDirectory once Python 2.7 is dropped
-        with io.open(os.path.join(self.tmpdir, 'some_key'), 'w', encoding='utf-8') as f:
-            f.write('42')
-        with io.open(os.path.join(self.tmpdir, 'foo.bar'), 'w', encoding='utf-8') as f:
-            f.write('baz')
-        finder = getconf.finders.FileContentFinder(self.tmpdir)
-        self.assertEqual(finder.find('some_key'), '42')
-        self.assertEqual(finder.find('foo.bar'), 'baz')
-        with self.assertRaises(getconf.finders.NotFound):
-            finder.find('non_existing_key')
+        with tempfile.TemporaryDirectory(prefix='getconf-tests') as tmpdir:
+            with io.open(os.path.join(tmpdir, 'some_key'), 'w') as f:
+                f.write('42')
+            with io.open(os.path.join(tmpdir, 'foo.bar'), 'w') as f:
+                f.write('baz')
+            finder = getconf.finders.FileContentFinder(tmpdir)
+            self.assertEqual(finder.find('some_key'), '42')
+            self.assertEqual(finder.find('foo.bar'), 'baz')
+            with self.assertRaises(getconf.finders.NotFound):
+                finder.find('non_existing_key')
 
 
 if __name__ == '__main__':

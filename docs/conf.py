@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # getconf documentation build configuration file, created by
 # sphinx-quickstart on Sun Apr 13 14:24:41 2014.

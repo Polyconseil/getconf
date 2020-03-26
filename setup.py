@@ -1,13 +1,12 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 # Copyright (c) Polyconseil SAS
 # This software is distributed under the two-clause BSD license.
-from __future__ import unicode_literals
 import io
 import os
 import re
 
 from setuptools import setup, find_packages
+
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -59,7 +58,6 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",

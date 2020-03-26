@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) Polyconseil SAS. All rights reserved.
 # This code is distributed under the two-clause BSD License.
 
