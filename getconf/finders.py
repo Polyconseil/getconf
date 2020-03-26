@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) Polyconseil SAS. All rights reserved.
 # This code is distributed under the two-clause BSD License.
 
-from __future__ import unicode_literals
-
+import configparser
 import glob
 import io
 import os
 
-from . import compat
-from .compat import configparser
 
 # Constant indicating that no namespace should be prefixed to environment variables.
 NO_NAMESPACE = object()
@@ -19,7 +15,7 @@ class NotFound(KeyError):
     """Raised when a key is not found in a configuration source."""
 
 
-class SectionDictFinder(object):
+class SectionDictFinder:
     """Simple finder finding key in a 1-level nested dictionary
 
     The looked-up keys should follow the "section.entry" format, split on
@@ -55,7 +51,7 @@ class SectionDictFinder(object):
             raise NotFound()
 
 
-class NamespacedEnvFinder(object):
+class NamespacedEnvFinder:
     """Finder looking inside os.environ
 
     The looked-up keys are expected to follow the "section.entry" format, split on
@@ -90,13 +86,10 @@ class NamespacedEnvFinder(object):
             value = os.environ[env_key]
         except KeyError:
             raise NotFound()
-
-        if compat.PY2:  # Bytes in PY2, text in PY3.
-            value = value.decode('utf-8')
         return value
 
 
-class MultiINIFilesParserFinder(object):
+class MultiINIFilesParserFinder:
     """Finder looking inside a list of provided INI files.
 
     The looked-up keys should follow the "section.entry" format, split on
@@ -111,7 +104,7 @@ class MultiINIFilesParserFinder(object):
     """
 
     def __init__(self, config_files):
-        self.parser = compat.get_no_interpolation_config_parser()
+        self.parser = configparser.ConfigParser(interpolation=None)
         self.search_files = []
 
         for path in config_files:
@@ -148,13 +141,10 @@ class MultiINIFilesParserFinder(object):
             value = self.parser.get(section, key)
         except (configparser.NoSectionError, configparser.NoOptionError):
             raise NotFound()
-
-        if compat.PY2:  # Bytes in PY2, text in PY3
-            value = value.decode('utf-8')
         return value
 
 
-class FileContentFinder(object):
+class FileContentFinder:
     """Simple finder finding key in a directory by matching filenames
 
     If the specified ``directory`` contains a file named ``key``, its content

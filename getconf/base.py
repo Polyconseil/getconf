@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) Polyconseil SAS. All rights reserved.
 # This code is distributed under the two-clause BSD License.
-
-from __future__ import unicode_literals
 
 import collections
 import datetime
@@ -10,14 +7,13 @@ import logging
 import operator
 import warnings
 
-from . import compat
 from . import finders
 
 
 logger = logging.getLogger(__name__)
 
 # Avoid issue with 'no handler found for...' when called before logging setup.
-logger.addHandler(compat.NullHandler())
+logger.addHandler(logging.NullHandler())
 
 
 _ConfigKey = collections.namedtuple(
@@ -37,7 +33,7 @@ class ConfigKey(_ConfigKey):
         return hash((self.key, self.doc, default, self.type_hint))
 
 
-class BaseConfigGetter(object):
+class BaseConfigGetter:
     """Base class used to define custom ConfigGetter
 
     It expects a list of finder objects implementing a ``find(key)`` method that should
@@ -66,7 +62,7 @@ class BaseConfigGetter(object):
     def get(self, key, default='', doc=''):
         """Compatibility method to retrieve values from various import sources. Soon deprecated."""
         assert (
-            default is None or isinstance(default, compat.text_type)
+            default is None or isinstance(default, str)
         ), 'get("%s", %s) has an invalid default value type.' % (key, repr(default))
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
         return self._get(key, default=default, doc=doc)
@@ -74,7 +70,7 @@ class BaseConfigGetter(object):
     def getstr(self, key, default='', doc=''):
         """Retrieve a value as a string."""
         assert (
-            default is None or isinstance(default, compat.text_type)
+            default is None or isinstance(default, str)
         ), 'getstr("%s", %s) has an invalid default value type.' % (key, repr(default))
         return self._get(key, default=default, doc=doc, type_hint='str')
 
@@ -84,21 +80,21 @@ class BaseConfigGetter(object):
         Splits on ',', strips entries and returns only non-empty values.
         """
         assert (
-            isinstance(default, compat.text_type) or
+            isinstance(default, str) or
             default is None or isinstance(default, (list, tuple))
         ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
-        if isinstance(default, compat.text_type):
+        if isinstance(default, str):
             warnings.warn(
                 "Use of a string as default value in getlist() is deprecated. Use list of strings instead",
                 DeprecationWarning
             )
-        if default is not None and any(not isinstance(value, compat.text_type) for value in default):
+        if default is not None and any(not isinstance(value, str) for value in default):
             warnings.warn(
                 "List of non-string as default is deprecated. Use list of strings instead",
                 DeprecationWarning
             )
         value = self._get(key, default=default, doc=doc, type_hint='list')
-        if isinstance(value, compat.text_type):
+        if isinstance(value, str):
             values = [entry.strip() for entry in value.split(sep)]
             values = [entry for entry in values if entry]
             return values
@@ -118,7 +114,7 @@ class BaseConfigGetter(object):
         value = self._get(key, default=default, doc=doc, type_hint='bool')
         if value is None:
             return None
-        return compat.text_type(value).lower() in ('on', 'true', 'yes', '1')
+        return str(value).lower() in ('on', 'true', 'yes', '1')
 
     def getint(self, key, default=0, doc=''):
         """Retrieve a value as an integer."""
@@ -151,7 +147,7 @@ class BaseConfigGetter(object):
     def gettimedelta(self, key, default='0d', doc=''):
         """Retrieve a value as a datetime.timedelta."""
         assert (
-            default is None or isinstance(default, compat.text_type)
+            default is None or isinstance(default, str)
         ), 'gettimedelta("%s", %s) has an invalid default value type.' % (key, repr(default))
         value = self._get(key, default=default, doc=doc, type_hint='timedelta')
         if value is None:
@@ -217,7 +213,7 @@ class ConfigGetter(BaseConfigGetter):
             "Successfully loaded configuration from files %r (searching in %r)",
             self._parser_finder.found_files, self._parser_finder.search_files,
         )
-        super(ConfigGetter, self).__init__(
+        super().__init__(
             self._env_finder,
             self._parser_finder,
             finders.SectionDictFinder(defaults or {}),
@@ -282,7 +278,7 @@ class ConfigGetter(BaseConfigGetter):
         return '\n'.join(parts[:-1])
 
 
-class ConfigSectionGetter(object):
+class ConfigSectionGetter:
     """Proxy around a section."""
     def __init__(self, config, section):
         self.base_config = config
