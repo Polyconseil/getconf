@@ -14,7 +14,7 @@ The ``BaseConfigGetter`` class
                            Finders are python objects providing the ``find(key)`` method that will be called in
                            the order the ``config_finders`` were provided order until one of them finds the ``key``.
                            The ``find(key)`` method should either return a string or raise ``NotFound`` depending
-                           on wheither the ``key`` was found or not.
+                           on whether the ``key`` was found or not.
 
     :param key_validator: If provided, ``key_validator`` must be a callable that raises ``InvalidKey`` on invalid keys.
 
@@ -76,6 +76,10 @@ The ``BaseConfigGetter`` class
 
         Retrieve a key from available configuration sources, and parse it as a datetime.timedelta object.
 
+    .. py:method:: getpath(key[, default=Path('.')])
+
+        Retrieve a key from available configuration sources, and parse it as a pathlib.Path object.
+
 
 The ``ConfigGetter`` class
 ---------------------------
@@ -92,6 +96,7 @@ The ``ConfigGetter`` class
                               Each item may either be the path to a simple file, or to a directory
                               (if the path ends with a '/') or a glob pattern (which will select all the files
                               matching the pattern according to the rules used by the shell).
+                              Both strings and pathlib.Path objects are accepted.
                               Each directory path will be replaced by the list of
                               its directly contained files, in alphabetical order, excluding those whose name
                               starts with a '.'.

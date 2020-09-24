@@ -5,7 +5,7 @@
 import datetime
 import io
 import os
-import shutil
+from pathlib import Path
 import tempfile
 import unittest
 import warnings
@@ -143,6 +143,16 @@ class ConfigGetterTestCase(unittest.TestCase):
             self.assertEqual('13', getter.getstr('section2.bar'))
             # A section.key defined in the base file, not overridden
             self.assertEqual('21', getter.getstr('section1.otherfoo'))
+
+    def test_from_pathlib_path(self):
+        """Paths accepted as config files"""
+        example_directory = Path(__file__).parent / 'config'
+        example_path = example_directory / 'example.ini'
+        invalid_path = example_directory / 'invalid.ini'
+
+        getter = getconf.ConfigGetter('TESTNS', [example_path, invalid_path])
+        self.assertEqual([str(example_path), str(invalid_path)], getter.search_files)
+        self.assertEqual([str(example_path)], getter.found_files)
 
     def test_from_globs(self):
         """Test fetching from globs"""
@@ -446,6 +456,24 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, getter.gettimedelta, 'test', 42)
         self.assertRaises(AssertionError, getter.gettimedelta, 'test', 4.2)
         self.assertRaises(AssertionError, getter.gettimedelta, 'test', (1, ))
+
+    def test_getpath_defaults(self):
+        """Test fetching a pathlib.Path"""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertEqual(Path('.'), getter.getpath('test'))
+        self.assertEqual(Path('foo'), getter.getpath('test', Path('foo')))
+        # "raw" paths tolerated and converted to Path
+        self.assertEqual(Path('foo'), getter.getpath('test', 'foo'))
+        self.assertIsNone(getter.getpath('test', None))
+
+    def test_getpath_defaults_raises(self):
+        """Test fetching from the default config dict with non-Path values."""
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertRaises(AssertionError, getter.getpath, 'test', [Path("foo")])
+        self.assertRaises(AssertionError, getter.getpath, 'test', False)
+        self.assertRaises(AssertionError, getter.getpath, 'test', 42)
+        self.assertRaises(AssertionError, getter.getpath, 'test', 4.2)
+        self.assertRaises(AssertionError, getter.getpath, 'test', (1, ))
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')

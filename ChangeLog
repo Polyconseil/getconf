@@ -2,7 +2,12 @@ ChangeLog
 =========
 
 1.10.0 (unreleased)
-------------------
+-------------------
+
+*New:*
+
+    * Add support of pathlib.Path objects, both in loading the config
+      and through the new ``getpath`` getter.
 
 *New:*
 

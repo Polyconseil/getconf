@@ -13,3 +13,6 @@ dist/
 htmlcov/
 reports/
 MANIFEST
+
+# Dev tools
+.vscode/

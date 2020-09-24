@@ -5,6 +5,7 @@ import collections
 import datetime
 import logging
 import operator
+from pathlib import Path
 import warnings
 
 from . import finders
@@ -177,6 +178,19 @@ class BaseConfigGetter:
             raise ValueError(fmt % args)
         else:
             return datetime.timedelta(**{unit: value})
+
+    def getpath(self, key, default=Path('.'), doc=''):
+        assert (
+            default is None or isinstance(default, (Path, str))
+        ), 'getpath("%s", %r) has an invalid default value type.' % (key, default)
+        value = self._get(key, default=default, doc=doc, type_hint='pathlib.Path')
+        if value is None:
+            return None
+        try:
+            return Path(value)
+        except TypeError:  # not raising ValueError
+            logger.exception("Unable to cast %r as Path for the key %s.", value, key)
+            raise
 
 
 def section_validator(key):

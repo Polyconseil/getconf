@@ -54,7 +54,7 @@ Customization:
 Other options
 -------------
 
-While desiging ``getconf``, we looked at other options:
+While designing ``getconf``, we looked at other options:
 
 Define everything in files
     * This makes it difficult to override a single setting (where should the file be?)

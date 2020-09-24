@@ -60,7 +60,7 @@ Links
 Installation
 ------------
 
-Intall the package from `PyPI`_, using pip:
+Install the package from `PyPI`_, using pip:
 
 .. code-block:: sh
 
@@ -73,7 +73,7 @@ Or from GitHub:
     git clone git://github.com/Polyconseil/getconf
 
 
-``getconf`` has no external dependancy beyond Python.
+``getconf`` has no external dependency beyond Python.
 
 
 Introduction
@@ -144,6 +144,8 @@ Features
         config.getint('db.port', 5432)
         config.getlist('db.tables')  # Expects a comma-separated list
         config.getfloat('db.auto_vacuum_scale_factor', 0.2)
+        config.gettimedelta('account_activation.validity', '2d')
+        config.getpath('django.static_root', pathlib.Path(BASE_DIR / 'static'))
 
 Concepts
 --------
