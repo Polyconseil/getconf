@@ -111,7 +111,7 @@ class MultiINIFilesParserFinder:
             if path is None:
                 continue
             # Handle '~/.foobar.conf'
-            path = os.path.abspath(os.path.expanduser(path))
+            path = os.path.abspath(os.path.expanduser(str(path)))
             if os.path.isdir(path):
                 path = os.path.join(path, '*')
 

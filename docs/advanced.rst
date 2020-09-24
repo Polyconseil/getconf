@@ -4,7 +4,7 @@ Advanced use
 getconf supports some more complex setups; this document describes advanced options.
 
 
-Recommanded layout
+Recommended layout
 ------------------
 
 Managing configuration can quickly turn into hell; here are a few guidelines:
@@ -112,7 +112,7 @@ this is strictly equivalent to using ``config = getconf.ConfigGetter('myproj', [
           when using a folder, we want definitions from ``99_overrides`` to override those in ``00_base``.
 
 
-Precedency
+Precedence
 ----------
 
 When reading configuration from multiple sources, it can be complex to determine which source overrides which.
@@ -125,7 +125,7 @@ When reading configuration from multiple sources, it can be complex to determine
 
 Two special cases need to be handled:
 
-- The environment-provided configuration file (``<NAMESPACE>_CONFIG``) has precedency over configuration files declared in ``ConfigGetter(config_files=[])``
+- The environment-provided configuration file (``<NAMESPACE>_CONFIG``) has precedence over configuration files declared in ``ConfigGetter(config_files=[])``
 - When a configuration file is actually a directory (even if provided through ``<NAMESPACE>_CONFIG``),
   its directly contained files are inserted in **ALPHABETICAL ORDER**, so that ``99_foo``
   actually overrides ``10_base``.
