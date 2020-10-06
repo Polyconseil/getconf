@@ -33,17 +33,24 @@ class ConfigKey(_ConfigKey):
         return hash((self.key, self.doc, default, self.type_hint))
 
 
+class InvalidKey(Exception):
+    """Raised when an invalid key is requested"""
+
+
 class BaseConfigGetter:
     """Base class used to define custom ConfigGetter
 
     It expects a list of finder objects implementing a ``find(key)`` method that should
     either return a string if the key was found or raise finders.NotFound() otherwise.
     Finders will be called in the specified order.
+
+    If provided, key_validator must be a callable that raises InvalidKey on invalid keys.
     """
 
-    def __init__(self, *config_finders):
+    def __init__(self, *config_finders, key_validator=None):
         self.finders = config_finders
         self.seen_keys = set()
+        self.key_validator = key_validator
 
     def _read(self, key, default):
         for finder in self.finders:
@@ -55,6 +62,8 @@ class BaseConfigGetter:
         return default
 
     def _get(self, key, default, doc, type_hint=''):
+        if self.key_validator is not None:
+            self.key_validator(key)
         value = self._read(key=key, default=default)
         self.seen_keys.add(ConfigKey(key=key, doc=doc, default=default, type_hint=type_hint))
         return value
@@ -170,6 +179,11 @@ class BaseConfigGetter:
             return datetime.timedelta(**{unit: value})
 
 
+def section_validator(key):
+    if "." not in key:
+        raise InvalidKey("{} should contain a section".format(key))
+
+
 class ConfigGetter(BaseConfigGetter):
     """A simple wrapper around ConfigParser + os.environ.
 
@@ -200,7 +214,7 @@ class ConfigGetter(BaseConfigGetter):
         - The empty string
     """
 
-    def __init__(self, namespace, config_files=(), defaults=None):
+    def __init__(self, namespace, config_files=(), defaults=None, mandatory_section=False):
         self._env_finder = finders.NamespacedEnvFinder(namespace)
 
         config_files = list(config_files)
@@ -213,10 +227,12 @@ class ConfigGetter(BaseConfigGetter):
             "Successfully loaded configuration from files %r (searching in %r)",
             self._parser_finder.found_files, self._parser_finder.search_files,
         )
+        key_validator = section_validator if mandatory_section else None
         super().__init__(
             self._env_finder,
             self._parser_finder,
             finders.SectionDictFinder(defaults or {}),
+            key_validator=key_validator,
         )
 
     @property
