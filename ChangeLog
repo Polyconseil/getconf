@@ -4,6 +4,12 @@ ChangeLog
 1.10.0 (unreleased)
 ------------------
 
+*New:*
+
+    * Add ``mandatory_section`` option to ``ConfigGetter`` to enforce the use
+      of a section in requested keys (and its underlying option ``key_validator`` on
+      ``BaseConfigGetter`` to validate keys format)
+
 *Removed:*
 
     * Drop support of Python 2.7 which reached EOL in January 2020

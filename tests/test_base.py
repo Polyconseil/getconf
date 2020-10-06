@@ -554,6 +554,12 @@ class ConfigGetterTestCase(unittest.TestCase):
         section = getter.get_section('no-interpolation')
         self.assertEqual('%(noascii)', section['nointerpolation'])
 
+    def test_mandatory_section(self):
+        getter = getconf.ConfigGetter('TESTNS', [], mandatory_section=True)
+        self.assertEqual('', getter.getstr('foo.bar'))
+        with self.assertRaises(getconf.base.InvalidKey):
+            getter.get('foo')
+
 
 class ContentFileFinderTestCase(unittest.TestCase):
 
@@ -568,6 +574,18 @@ class ContentFileFinderTestCase(unittest.TestCase):
             self.assertEqual(finder.find('foo.bar'), 'baz')
             with self.assertRaises(getconf.finders.NotFound):
                 finder.find('non_existing_key')
+
+
+class BaseGetterTestCase(unittest.TestCase):
+
+    def test_key_validator(self):
+        def key_validator(key):
+            if "invalid" in key:
+                raise getconf.base.InvalidKey()
+        getter = getconf.BaseConfigGetter(key_validator=key_validator)
+        getter.getbool('valid_key')
+        with self.assertRaises(getconf.base.InvalidKey):
+            getter.getbool('invalid_key')
 
 
 if __name__ == '__main__':

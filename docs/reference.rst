@@ -6,7 +6,7 @@ Reference
 The ``BaseConfigGetter`` class
 ------------------------------
 
-.. py:class:: BaseConfigGetter(*config_finders)
+.. py:class:: BaseConfigGetter(*config_finders, key_validator=None)
 
     This class works as the base for all ConfigGetters.
 
@@ -15,6 +15,8 @@ The ``BaseConfigGetter`` class
                            the order the ``config_finders`` were provided order until one of them finds the ``key``.
                            The ``find(key)`` method should either return a string or raise ``NotFound`` depending
                            on wheither the ``key`` was found or not.
+
+    :param key_validator: If provided, ``key_validator`` must be a callable that raises ``InvalidKey`` on invalid keys.
 
     .. py:method:: getstr(key[, default=''])
 
@@ -78,7 +80,7 @@ The ``BaseConfigGetter`` class
 The ``ConfigGetter`` class
 ---------------------------
 
-.. py:class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...})
+.. py:class:: ConfigGetter(namespace, config_files=[config_file_path, ...], defaults={'section':{'key': 'value', ...}, ...}, mandatory_section=False)
 
     A ready-to-use ConfigGetter working working as a proxy around both :attr:`os.environ` and INI configuration files.
 
@@ -98,6 +100,8 @@ The ``ConfigGetter`` class
                               all ``config_files`` contents.
     :param dict defaults: Dictionary of defaults values that are fetch with the lowest priority.
                           The value for 'section.key' will be looked up at ``defaults['section']['key']``.
+
+    :param bool mandatory_section: Boolean indicating weither requested keys should contain a section/a dot.
 
     .. warning:: When running with an empty namespace (``namespace=getconf.NO_NAMESPACE``), the environment variables
                  are looked up under ``<SECTION>_<KEY>`` instead of ``<NAMESPACE>_<SECTION>_<KEY>``; use this setup with
