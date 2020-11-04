@@ -43,7 +43,7 @@ respecting the standard procedures in each system:
 ``getconf`` is distributed under the two-clause BSD license, a copy of
 which is in the source.
 
-``getconf`` v1.10 onwards supports Python 3.5, 3.6, 3.7 and 3.8.
+``getconf`` v1.10 onwards supports Python 3.5, 3.6, 3.7, 3.8 and 3.9.
 v1.9.x are the last versions to support Python 2.7 and 3.4.
 v1.8.x are the last versions to support Python 3.3.
 v1.5.x are the last versions to support Python 2.6.
