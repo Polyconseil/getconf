@@ -80,6 +80,14 @@ The ``BaseConfigGetter`` class
 
         Retrieve a key from available configuration sources, and parse it as a pathlib.Path object.
 
+    .. py:method:: getenum(key, [default, enum_class])
+
+        Retrieve a key from available configuration sources, and parse it as an enum.Enum based object.
+
+        .. note:: The ``default`` param accepts either an enum.Enum based instance, an enum.Enum member value type or None.
+        .. note:: :attr:`os.environ` and INI configuration files shall only use enum member values, not member names, as a value.
+
+
 
 The ``ConfigGetter`` class
 ---------------------------

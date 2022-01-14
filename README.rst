@@ -147,6 +147,15 @@ Features
         config.gettimedelta('account_activation.validity', '2d')
         config.getpath('django.static_root', pathlib.Path(BASE_DIR / 'static'))
 
+    ``getconf`` can also convert options to user-defined standard-type-based types:
+
+    .. code-block:: python
+
+        class Environment(str, enum.Enum):
+            DEV = 'dev'
+            PROD = 'prod'
+        config.getenum('environment', Environment.PROD)
+
 Concepts
 --------
 

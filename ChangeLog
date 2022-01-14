@@ -4,7 +4,9 @@ ChangeLog
 1.11.0 (unreleased)
 -------------------
 
-- Nothing changed yet.
+*New:*
+
+    * Add support for enum.Enum based objects through the new ``getenum`` getter.
 
 
 1.10.0 (2020-11-04)

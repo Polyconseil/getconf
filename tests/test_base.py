@@ -3,6 +3,7 @@
 # This code is distributed under the two-clause BSD License.
 
 import datetime
+import enum
 import io
 import os
 from pathlib import Path
@@ -30,6 +31,18 @@ class Environ:
                 os.environ[k] = self.old[k]
             else:
                 del os.environ[k]
+
+
+class TestIntEnum(enum.IntEnum):
+    ONE = 1
+    TWO = 2
+    THREE = 3
+
+
+class TestStrEnum(str, enum.Enum):
+    ONE = 'one'
+    TWO = 'two'
+    THREE = 'three'
 
 
 class ConfigGetterTestCase(unittest.TestCase):
@@ -474,6 +487,56 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, getter.getpath, 'test', 42)
         self.assertRaises(AssertionError, getter.getpath, 'test', 4.2)
         self.assertRaises(AssertionError, getter.getpath, 'test', (1, ))
+
+    def test_getenum_value(self):
+        """Test fetching an enum.Enum"""
+        getter = getconf.ConfigGetter('TESTNS')
+        with Environ(TESTNS_FOO='1'):
+            value = getter.getenum('foo', default=TestIntEnum.TWO)
+            self.assertEqual(value, TestIntEnum.ONE)
+        with Environ(TESTNS_FOO='three'):
+            value = getter.getenum('foo', default=TestStrEnum.ONE)
+            self.assertEqual(value, TestStrEnum.THREE)
+
+    def test_getenum_bad_value(self):
+        class UncastableInt(int):
+            def __new__(cls, x, *args, **kwargs):
+                if not isinstance(x, int):
+                    raise ValueError()
+                return super().__new__(cls, x, *args, **kwargs)
+        class UncastableIntEnum(UncastableInt, enum.Enum):
+            ONE = 1
+            TWO = 2
+        getter = getconf.ConfigGetter('TESTNS')
+
+        with Environ(TESTNS_FOO='666'):
+            self.assertRaises(ValueError, getter.getenum, 'foo', enum_class=TestIntEnum)
+        with Environ(TESTNS_FOO='1'):
+            self.assertRaises(ValueError, getter.getenum, 'foo', enum_class=UncastableIntEnum)
+
+    def test_getenum_defaults(self):
+        """Test fetching an enum.Enum"""
+        getter = getconf.ConfigGetter('TESTNS')
+        # Missing default value
+        self.assertIsNone(getter.getenum('test', enum_class=TestIntEnum))
+        self.assertIsNone(getter.getenum('test', enum_class=TestStrEnum))
+        self.assertEqual(TestIntEnum.ONE, getter.getenum('test', 1, enum_class=TestIntEnum))
+        self.assertEqual(TestIntEnum.TWO, getter.getenum('test', TestIntEnum.TWO, enum_class=TestIntEnum))
+        self.assertEqual(TestIntEnum.THREE, getter.getenum('test', TestIntEnum.THREE))
+
+        self.assertEqual(TestStrEnum.ONE, getter.getenum('test', 'one', enum_class=TestStrEnum))
+        self.assertEqual(TestStrEnum.TWO, getter.getenum('test', TestStrEnum.TWO, enum_class=TestStrEnum))
+        self.assertEqual(TestStrEnum.THREE, getter.getenum('test', TestStrEnum.THREE))
+
+    def test_getenum_defaults_raises(self):
+        getter = getconf.ConfigGetter('TESTNS')
+        self.assertRaises(AssertionError, getter.getenum, 'test')
+        # Non-enum.Enum default value and no enum_class => cannot guess any enum.Enum type
+        self.assertRaises(AssertionError, getter.getenum, 'test', 'default')
+        # Non-enum.Enum default value and enum_class of non-enum.Enum type
+        self.assertRaises(AssertionError, getter.getenum, 'test', 'default', enum_class=str)
+        # Default value of unrelated enum.Enum subclass
+        self.assertRaises(AssertionError, getter.getenum, 'test', TestIntEnum.ONE, enum_class=TestStrEnum)
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')

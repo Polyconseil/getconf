@@ -3,6 +3,7 @@
 
 import collections
 import datetime
+import enum
 import logging
 import operator
 from pathlib import Path
@@ -190,6 +191,33 @@ class BaseConfigGetter:
             return Path(value)
         except TypeError:  # not raising ValueError
             logger.exception("Unable to cast %r as Path for the key %s.", value, key)
+            raise
+
+    def getenum(self, key, default=None, doc='', enum_class=None):
+        if enum_class is None and isinstance(default, enum.Enum):
+            enum_class = type(default)
+        assert (
+            enum_class is not None and (default is None or (
+                enum_class is not None and issubclass(enum_class, enum.Enum) and issubclass(enum_class, type(default))
+            ))
+        ), 'getenum("%s", %r, enum_class=%r) is missing a default value or this one has an invalid type.' % (
+            key, default, enum_class
+        )
+        value = self._get(key, default=default, doc=doc, type_hint='enum.Enum')
+        if value is None:
+            return None
+        enum_value_type = type(next(member for member in enum_class).value)
+        if not isinstance(value, enum_value_type):
+            # E.g. the value comes from a file or an environment variable and is a string but our enum expects int
+            # values.
+            try:
+                value = enum_value_type(value)
+            except ValueError:
+                logger.exception("Unable to cast %s as %r for the key %s.", repr(value), enum_value_type, key)
+        try:
+            return enum_class(value)
+        except ValueError:
+            logger.exception('Expected key "%s" to be one of %s, got %r.', key, [member.value for member in enum_class], value)
             raise
 
 
