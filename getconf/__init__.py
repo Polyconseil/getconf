@@ -3,7 +3,7 @@
 
 
 __author__ = "Polyconseil <opensource+getconf@polyconseil.fr>"
-__version__ = '1.11.0.dev0'
+__version__ = '1.11.0'
 
 
 from .base import (
