@@ -1,6 +1,7 @@
 include ChangeLog
 include requirements_dev.txt
 include README.rst
+include Makefile
 
 graft getconf
 graft docs
@@ -11,4 +12,3 @@ global-exclude *.py[cod] __pycache__ *.so .*.swp *~
 
 # Be explicit to make check-manifest happy.
 exclude .pylintrc
-exclude release.conf
