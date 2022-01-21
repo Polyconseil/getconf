@@ -4,6 +4,5 @@
 Sphinx>=1.3
 sphinx_rtd_theme
 pylint
-nose
-coverage
+pytest-cov
 zest.releaser[recommended]
