@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # Copyright (c) Polyconseil SAS
 # This software is distributed under the two-clause BSD license.
-import io
 import os
 import re
 
@@ -15,7 +14,7 @@ def get_version(package_name):
     version_re = re.compile(r"^__version__ = [\"']([\w_.+-]+)[\"']$")
     package_components = package_name.split('.')
     init_path = os.path.join(root_dir, *(package_components + ['__init__.py']))
-    with io.open(init_path, 'r', encoding='utf-8') as f:
+    with open(init_path, 'r', encoding='utf-8') as f:
         for line in f:
             match = version_re.match(line[:-1])
             if match:
@@ -24,7 +23,7 @@ def get_version(package_name):
 
 
 def get_long_description(filename):
-    with io.open(filename, 'r', encoding='utf-8') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         text = f.read()
 
         # Replace :doc: directive by *title*
