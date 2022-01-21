@@ -4,7 +4,6 @@
 
 import datetime
 import enum
-import io
 import os
 from pathlib import Path
 import tempfile
@@ -670,9 +669,9 @@ class ContentFileFinderTestCase(unittest.TestCase):
 
     def test_finder(self):
         with tempfile.TemporaryDirectory(prefix='getconf-tests') as tmpdir:
-            with io.open(os.path.join(tmpdir, 'some_key'), 'w') as f:
+            with open(os.path.join(tmpdir, 'some_key'), 'w') as f:
                 f.write('42')
-            with io.open(os.path.join(tmpdir, 'foo.bar'), 'w') as f:
+            with open(os.path.join(tmpdir, 'foo.bar'), 'w') as f:
                 f.write('baz')
             finder = getconf.finders.FileContentFinder(tmpdir)
             self.assertEqual(finder.find('some_key'), '42')

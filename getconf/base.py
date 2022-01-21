@@ -74,7 +74,7 @@ class BaseConfigGetter:
         """Compatibility method to retrieve values from various import sources. Soon deprecated."""
         assert (
             default is None or isinstance(default, str)
-        ), 'get("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'get("{key}", {repr(default)}) has an invalid default value type.'
         warnings.warn("Use of get() directly is deprecated. Use .getstr() instead", DeprecationWarning)
         return self._get(key, default=default, doc=doc)
 
@@ -82,7 +82,7 @@ class BaseConfigGetter:
         """Retrieve a value as a string."""
         assert (
             default is None or isinstance(default, str)
-        ), 'getstr("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'getstr("{key}", {repr(default)}) has an invalid default value type.'
         return self._get(key, default=default, doc=doc, type_hint='str')
 
     def getlist(self, key, default=(), doc='', sep=','):
@@ -93,7 +93,7 @@ class BaseConfigGetter:
         assert (
             isinstance(default, str) or
             default is None or isinstance(default, (list, tuple))
-        ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'getlist("{key}", {repr(default)}) has an invalid default value type.'
         if isinstance(default, str):
             warnings.warn(
                 "Use of a string as default value in getlist() is deprecated. Use list of strings instead",
@@ -121,7 +121,7 @@ class BaseConfigGetter:
         """
         assert (
             default is None or isinstance(default, bool)
-        ), 'getlist("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'getlist("{key}", {repr(default)}) has an invalid default value type.'
         value = self._get(key, default=default, doc=doc, type_hint='bool')
         if value is None:
             return None
@@ -131,7 +131,7 @@ class BaseConfigGetter:
         """Retrieve a value as an integer."""
         assert (
             default is None or isinstance(default, int)
-        ), 'getint("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'getint("{key}", {repr(default)}) has an invalid default value type.'
         value = self._get(key, default=default, doc=doc, type_hint='int')
         if value is None:
             return None
@@ -145,7 +145,7 @@ class BaseConfigGetter:
         """Retrieve a value as a float."""
         assert (
             default is None or isinstance(default, float)
-        ), 'getfloat("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'getfloat("{key}", {repr(default)}) has an invalid default value type.'
         value = self._get(key, default=default, doc=doc, type_hint='float')
         if value is None:
             return None
@@ -159,7 +159,7 @@ class BaseConfigGetter:
         """Retrieve a value as a datetime.timedelta."""
         assert (
             default is None or isinstance(default, str)
-        ), 'gettimedelta("%s", %s) has an invalid default value type.' % (key, repr(default))
+        ), f'gettimedelta("{key}", {repr(default)}) has an invalid default value type.'
         value = self._get(key, default=default, doc=doc, type_hint='timedelta')
         if value is None:
             return None
@@ -183,7 +183,7 @@ class BaseConfigGetter:
     def getpath(self, key, default=Path('.'), doc=''):
         assert (
             default is None or isinstance(default, (Path, str))
-        ), 'getpath("%s", %r) has an invalid default value type.' % (key, default)
+        ), f'getpath("{key}", {default!r}) has an invalid default value type.'
         value = self._get(key, default=default, doc=doc, type_hint='pathlib.Path')
         if value is None:
             return None
@@ -200,7 +200,7 @@ class BaseConfigGetter:
             enum_class is not None and (default is None or (
                 enum_class is not None and issubclass(enum_class, enum.Enum)
             ))
-        ), 'getenum("%s", %r, enum_class=%r) is missing a default value or this one has an invalid type.' % (
+        ), 'getenum("{}", {!r}, enum_class={!r}) is missing a default value or this one has an invalid type.'.format(
             key, default, enum_class
         )
         value = self._get(key, default=default, doc=doc, type_hint='enum.Enum')
@@ -225,7 +225,7 @@ class BaseConfigGetter:
 
 def section_validator(key):
     if "." not in key:
-        raise InvalidKey("{} should contain a section".format(key))
+        raise InvalidKey(f"{key} should contain a section")
 
 
 class ConfigGetter(BaseConfigGetter):
@@ -345,4 +345,4 @@ class ConfigSectionGetter:
         self.section = section
 
     def __getitem__(self, key):
-        return self.base_config.getstr('%s.%s' % (self.section, key))
+        return self.base_config.getstr(f'{self.section}.{key}')

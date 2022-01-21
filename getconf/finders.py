@@ -3,7 +3,6 @@
 
 import configparser
 import glob
-import io
 import os
 
 
@@ -158,6 +157,6 @@ class FileContentFinder:
     def find(self, key):
         path = os.path.join(self.directory, key)
         if os.path.isfile(path):
-            with io.open(path, encoding=self.encoding) as f:
+            with open(path, encoding=self.encoding) as f:
                 return f.read()
         raise NotFound()
