@@ -11,7 +11,7 @@ To run tests:
 
 .. code-block:: sh
 
-    nosetests
+    pytest
 
 To make a release:
 

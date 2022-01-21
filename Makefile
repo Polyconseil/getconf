@@ -6,7 +6,7 @@ release:
 	fullrelease
 
 test:
-	nosetests
+	pytest
 
 update:
 	pip install -r requirements_dev.txt
