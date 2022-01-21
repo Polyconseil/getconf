@@ -9,6 +9,9 @@ ChangeLog
     * Fix support for simple enum.Enum objects (not inheriting ``str``) in ``getenum`` getter.
     * Delay ``default`` value validation in ``getenum`` getter.
 
+*Note:*
+
+    * Switch test runner to pytest
 
 1.11.0 (2022-01-17)
 -------------------
