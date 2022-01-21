@@ -45,6 +45,12 @@ class TestStrEnum(str, enum.Enum):
     THREE = 'three'
 
 
+class TestSimpleEnum(enum.Enum):
+    ONE = 'one'
+    TWO = 'two'
+    THREE = 'three'
+
+
 class ConfigGetterTestCase(unittest.TestCase):
     example_directory = os.path.abspath(os.path.join(os.path.dirname(__file__), 'config/'))
     example_path = os.path.join(example_directory, 'example.ini')
@@ -497,6 +503,9 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_FOO='three'):
             value = getter.getenum('foo', default=TestStrEnum.ONE)
             self.assertEqual(value, TestStrEnum.THREE)
+        with Environ(TESTNS_FOO='two'):
+            value = getter.getenum('foo', default=TestSimpleEnum.ONE)
+            self.assertEqual(value, TestSimpleEnum.TWO)
 
     def test_getenum_bad_value(self):
         class UncastableInt(int):
@@ -514,6 +523,9 @@ class ConfigGetterTestCase(unittest.TestCase):
         with Environ(TESTNS_FOO='1'):
             self.assertRaises(ValueError, getter.getenum, 'foo', enum_class=UncastableIntEnum)
 
+        # Default value of unrelated enum.Enum subclass
+        self.assertRaises(ValueError, getter.getenum, 'test', TestIntEnum.ONE, enum_class=TestStrEnum)
+
     def test_getenum_defaults(self):
         """Test fetching an enum.Enum"""
         getter = getconf.ConfigGetter('TESTNS')
@@ -528,6 +540,10 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertEqual(TestStrEnum.TWO, getter.getenum('test', TestStrEnum.TWO, enum_class=TestStrEnum))
         self.assertEqual(TestStrEnum.THREE, getter.getenum('test', TestStrEnum.THREE))
 
+        self.assertEqual(TestSimpleEnum.ONE, getter.getenum('test', 'one', enum_class=TestSimpleEnum))
+        self.assertEqual(TestSimpleEnum.TWO, getter.getenum('test', TestSimpleEnum.TWO, enum_class=TestSimpleEnum))
+        self.assertEqual(TestSimpleEnum.THREE, getter.getenum('test', TestSimpleEnum.THREE))
+
     def test_getenum_defaults_raises(self):
         getter = getconf.ConfigGetter('TESTNS')
         self.assertRaises(AssertionError, getter.getenum, 'test')
@@ -535,8 +551,6 @@ class ConfigGetterTestCase(unittest.TestCase):
         self.assertRaises(AssertionError, getter.getenum, 'test', 'default')
         # Non-enum.Enum default value and enum_class of non-enum.Enum type
         self.assertRaises(AssertionError, getter.getenum, 'test', 'default', enum_class=str)
-        # Default value of unrelated enum.Enum subclass
-        self.assertRaises(AssertionError, getter.getenum, 'test', TestIntEnum.ONE, enum_class=TestStrEnum)
 
     def test_get_section_env(self):
         getter = getconf.ConfigGetter('TESTNS')

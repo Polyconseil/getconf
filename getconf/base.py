@@ -198,7 +198,7 @@ class BaseConfigGetter:
             enum_class = type(default)
         assert (
             enum_class is not None and (default is None or (
-                enum_class is not None and issubclass(enum_class, enum.Enum) and issubclass(enum_class, type(default))
+                enum_class is not None and issubclass(enum_class, enum.Enum)
             ))
         ), 'getenum("%s", %r, enum_class=%r) is missing a default value or this one has an invalid type.' % (
             key, default, enum_class
@@ -206,6 +206,8 @@ class BaseConfigGetter:
         value = self._get(key, default=default, doc=doc, type_hint='enum.Enum')
         if value is None:
             return None
+        if isinstance(value, enum_class):
+            return value
         enum_value_type = type(next(member for member in enum_class).value)
         if not isinstance(value, enum_value_type):
             # E.g. the value comes from a file or an environment variable and is a string but our enum expects int

@@ -1,10 +1,13 @@
 ChangeLog
 =========
 
-1.12.0 (unreleased)
+1.11.1 (unreleased)
 -------------------
 
-- Nothing changed yet.
+*Bugfix:*
+
+    * Fix support for simple enum.Enum objects (not inheriting ``str``) in ``getenum`` getter.
+    * Delay ``default`` value validation in ``getenum`` getter.
 
 
 1.11.0 (2022-01-17)
